@@ -1,0 +1,639 @@
+<title>Тренажёр по математике</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;700&family=Roboto+Mono:wght@500&display=swap">
+<style>
+/* Layout: topic bar on top; one topic at a time — formulas · mistakes · trainer card. Brand: Compass College (Black / Ivory / Pistachio). */
+:root{
+  --bg:#F4F3EE; --surface:#FFFFFF; --ivory:#E5E4DF; --ink:#141412; --muted:#5E5D57; --line:#D6D4CC;
+  --accent:#ACB948; --accent-ink:#4E5718; --good:#2F7D3B; --good-bg:#E4F1E2; --bad:#B23A2A; --bad-bg:#F8E3DF;
+  --font:'Roboto Condensed','Arial Narrow',Arial,sans-serif; --mono:'Roboto Mono',ui-monospace,Menlo,monospace;
+  --base:17px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141412; --surface:#1E1E1B; --ivory:#2A2A26; --ink:#EEEDE7; --muted:#A7A59C; --line:#3A3934;
+  --accent:#ACB948; --accent-ink:#D3DD86; --good:#7FC98A; --good-bg:#1F3323; --bad:#F0907F; --bad-bg:#3A201B; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141412; --surface:#1E1E1B; --ivory:#2A2A26; --ink:#EEEDE7; --muted:#A7A59C; --line:#3A3934;
+  --accent:#ACB948; --accent-ink:#D3DD86; --good:#7FC98A; --good-bg:#1F3323; --bad:#F0907F; --bad-bg:#3A201B; color-scheme:dark}
+:root.big{--base:22px}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:var(--base);line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:860px;margin:0 auto}
+header.top{background:var(--bg);padding-block:14px 10px;border-bottom:1px solid var(--line)}
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand h1{font-size:1.45em;margin:0;font-weight:700;letter-spacing:.2px;text-wrap:balance}
+.brand span{color:var(--muted);font-size:.85em}
+.tools{display:flex;gap:8px}
+.tbtn{font:inherit;font-size:.82em;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
+.tbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+nav.topics{display:flex;flex-wrap:wrap;gap:6px;padding-top:10px}
+@media (max-width:700px){nav.topics{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}}
+nav.topics button{flex:none;font:inherit;font-size:.86em;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+nav.topics button .wk{color:var(--muted);margin-right:6px;font-variant-numeric:tabular-nums}
+nav.topics button.on{background:var(--accent);border-color:var(--accent);color:#141412}
+nav.topics button.on .wk{color:#3B421A}
+main{padding-top:20px;display:grid;gap:18px}
+.eyebrow{text-transform:uppercase;letter-spacing:1.2px;font-size:.72em;color:var(--accent-ink);font-weight:700}
+h2.tt{margin:2px 0 0;font-size:1.7em;line-height:1.15;text-wrap:balance}
+.lead{color:var(--muted);margin:6px 0 0;max-width:75ch}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.cols{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-width:0}
+.panel h3{margin:0 0 10px;font-size:.78em;text-transform:uppercase;letter-spacing:1.1px;color:var(--muted)}
+.mat{display:grid;gap:8px}
+.matrow{display:grid;gap:5px}
+.matrow .les{font-size:.8em;font-weight:700;color:var(--muted);min-width:64px;font-variant-numeric:tabular-nums}
+.matrow .links{display:flex;gap:6px;flex-wrap:wrap}
+a.mlink{display:inline-flex;gap:6px;align-items:baseline;font-size:.88em;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:5px 10px}
+a.mlink:hover{border-color:var(--ink)}
+a.mlink .k{color:var(--muted);font-size:.85em}
+a.mlink::after{content:"↗";color:var(--muted);font-size:.85em}
+.f{font-size:1em;font-weight:500;font-variant-numeric:tabular-nums;padding:7px 10px;background:var(--ivory);border-radius:6px;margin:0 0 6px;overflow-wrap:anywhere}
+.fnote{font-size:.86em;color:var(--muted);margin:2px 0 10px}
+ul.err{margin:0;padding-left:18px;display:grid;gap:8px}
+ul.err li b{font-weight:700}
+.card{background:var(--surface);border:2px solid var(--ink);border-radius:14px;padding:18px 20px;display:grid;gap:14px}
+.cardhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cardhead .score{margin-left:auto}
+.cardhead .eyebrow{color:var(--muted)}
+.score{font-size:.85em;color:var(--muted);font-variant-numeric:tabular-nums}
+select#kind{font:inherit;font-size:.86em;border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--surface);color:var(--ink);max-width:100%}
+.q{font-size:1.12em;line-height:1.5;margin:0}
+.q .num{font-variant-numeric:tabular-nums;white-space:nowrap}
+table.tbl{border-collapse:collapse;font-variant-numeric:tabular-nums}
+table.tbl td,table.tbl th{border:1px solid var(--line);padding:6px 12px;text-align:center}
+table.tbl th{background:var(--ivory);font-weight:500}
+.tblwrap{overflow-x:auto}
+svg.plot{width:100%;max-width:420px;height:auto;display:block}
+.fields{display:grid;gap:10px}
+.field{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.field label{min-width:110px;flex:0 1 auto}
+.field input{font:inherit;font-family:var(--mono);font-size:1em;width:150px;max-width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.field input:focus,select:focus,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.field .unit{color:var(--muted);font-size:.9em}
+.field.ok input{border-color:var(--good);background:var(--good-bg)}
+.field.no input{border-color:var(--bad);background:var(--bad-bg)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:inherit;font-size:.92em;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:var(--mono)}
+.seg button.sel{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.field.ok .seg button.sel{background:var(--good);border-color:var(--good);color:#fff}
+.field.no .seg button.sel{background:var(--bad);border-color:var(--bad);color:#fff}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:700;border-radius:9px;padding:9px 16px;cursor:pointer;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.btn:disabled{opacity:.4;cursor:default}
+.msg{font-weight:700;margin:0;min-height:1.3em}
+.msg.ok{color:var(--good)} .msg.no{color:var(--bad)}
+.tip{border-left:4px solid var(--bad);background:var(--bad-bg);padding:8px 12px;border-radius:0 8px 8px 0;font-weight:500}
+.tip p{margin:2px 0}
+.hints{display:grid;gap:8px}
+.hint{border-left:4px solid var(--accent);background:var(--ivory);padding:8px 12px;border-radius:0 8px 8px 0}
+.hint b{color:var(--accent-ink)}
+.sol{border:1px dashed var(--line);border-radius:10px;padding:10px 14px;background:var(--bg)}
+.sol p{margin:4px 0;font-variant-numeric:tabular-nums;white-space:pre-wrap}
+.src{display:block;font-size:.78em;color:var(--muted);margin-bottom:4px;letter-spacing:.3px}
+/* landing */
+.hero{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:end;background:var(--surface);border:2px solid var(--ink);border-radius:16px;padding:22px 24px 0;overflow:hidden}
+.hero h2{font-size:2em;line-height:1.1;margin:4px 0 8px;text-wrap:balance}
+.hero p{margin:0 0 10px;max-width:60ch}
+.hero .cta{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px}
+.hero .me{position:relative;width:300px;align-self:end}
+.hero .me svg{width:300px;height:auto;display:block}
+@media (max-width:640px){.hero{grid-template-columns:1fr}.hero .me{justify-self:center;width:100%;max-width:300px}.hero .me svg{width:100%}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:1.7em;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.86em}
+.steps{margin:0;padding-left:20px;display:grid;gap:6px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.tcard{font:inherit;text-align:left;cursor:pointer;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:3px}
+.tcard:hover{border-color:var(--ink)}
+.tcard .wk{font-size:.75em;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.tcard b{font-size:1.02em}
+.tcard span.n{font-size:.82em;color:var(--muted)}
+.tcard.mid{border:2px solid var(--accent)}
+h3.sec{margin:6px 0 0;font-size:.8em;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted)}
+a.lnk{color:var(--ink)}
+/* buddy */
+#buddy{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:0;z-index:20;width:110px;pointer-events:none;transform:translateY(110%);visibility:hidden;transition:transform .35s cubic-bezier(.3,1.4,.5,1),visibility 0s .35s}
+#buddy.on{transform:translateY(0);visibility:visible;transition:transform .35s cubic-bezier(.3,1.4,.5,1),visibility 0s}
+#buddy svg{width:110px;height:auto;display:block}
+#buddy .say{position:absolute;right:92%;top:0;white-space:nowrap;background:var(--surface);color:var(--ink);border:2px solid var(--ink);border-radius:12px;padding:7px 14px;font-size:1.35em;font-weight:700;box-shadow:0 3px 0 var(--ink)}
+@media (prefers-reduced-motion:reduce){#buddy{transition:none}}
+@media (max-width:640px){#buddy{width:84px}#buddy svg{width:84px}#buddy .say{font-size:1.15em}}
+footer{color:var(--muted);font-size:.82em;padding-top:8px}
+@media (prefers-reduced-motion:no-preference){.hint,.sol{animation:in .18s ease-out}@keyframes in{from{opacity:.4;transform:translateY(3px)}to{opacity:1}}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="brandrow">
+    <div class="brand"><h1>Тренажёр по математике</h1><span>1 курс · Compass College · осень 2026</span></div>
+    <div class="tools">
+      <button class="tbtn" id="bigbtn" aria-pressed="false" title="Для показа на экране">Крупно</button>
+    </div>
+  </div>
+  <nav class="topics" id="nav" aria-label="Темы"></nav>
+</header>
+<main id="main"></main>
+<div id="buddy" aria-hidden="true"><div class="say" id="buddysay"></div></div>
+<footer>Ответы с запятой или точкой — как удобно. Дробь можно писать как 1/64. Числа в задачах меняются при каждой новой задаче. В мидтерме примерно каждая третья задача — настоящая из вариантов α и β, остальные — по мотивам.</footer>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const r2=(x,d)=>{const p=10**d;return Math.round(x*p+1e-9*Math.sign(x))/p};
+const F=(x,d=2)=>{if(typeof x!=='number')return x;const s=Number(r2(x,d)).toLocaleString('ru-RU',{maximumFractionDigits:d,useGrouping:true});return s.replace(/ /g,' ')};
+const N=x=>`<span class="num">${x}</span>`;
+const sup=s=>`<sup>${s}</sup>`;
+const sig2=x=>{if(x===0)return 0;const e=Math.floor(Math.log10(Math.abs(x)));const p=10**(e-1);return Math.round(x/p)*p};
+const ceil1=x=>{const p=10**Math.floor(Math.log10(x)+1e-12);return Math.ceil(x/p-1e-9)*p};
+const PHI=(1+Math.sqrt(5))/2;
+const pl=(n,f)=>{const a=n%10,b=n%100;return n+' '+(a===1&&b!==11?f[0]:a>=2&&a<=4&&(b<12||b>14)?f[1]:f[2])};
+const YRS=['год','года','лет'],MON=['месяц','месяца','месяцев'];
+const RAZ=k=>Number.isInteger(k)?pl(k,['раз','раза','раз']).split(' ')[1]:'раза';
+function parseAns(s){
+  if(s==null)return NaN;s=String(s).trim().replace(/[\s  ]/g,'').replace(/%$/,'').replace(/,/g,'.').replace(/−/g,'-');
+  if(!s)return NaN;
+  const m=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);if(m)return parseFloat(m[1])/parseFloat(m[2]);
+  return /^-?\d*\.?\d+(e-?\d+)?$/i.test(s)?parseFloat(s):NaN;
+}
+const num=(label,ans,o={})=>({kind:'num',label,ans,tol:o.tol??1e-6,unit:o.unit||'',flex:!!o.flex,show:o.show??F(ans,o.flex?2:4),traps:o.traps||[],exact:o.exact,up:!!o.up});
+const decOf=s=>{s=String(s).replace(/,/g,'.');if(s.includes('/'))return 6;const m=s.match(/\.(\d+)/);return m?m[1].length:0};
+const choice=(label,opts,ans)=>({kind:'choice',label,opts,ans,show:ans});
+function expandNum(d2,n){ // d2 = two digits as integer 10..99, value d2*10^(n-1)
+  const digits=String(d2).replace(/0$/,'')||'0';const lead=String(d2);const e=n-1;
+  if(e>=0){return F(d2*10**e,0)}
+  const k=-e; let s=lead.padStart(k+1,'0'); s=s.slice(0,s.length-k)+','+s.slice(s.length-k); return s.replace(/0+$/,'').replace(/,$/,'');
+}
+const superDigits={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+const pw=n=>'<sup>'+String(n).replace('-','−')+'</sup>';
+
+/* ---------- midterm data ---------- */
+const src=(s,c)=>`<span class="src">${s?'Мидтерм · вариант '+s+(c?' · '+c+'-29':''):'По мотивам мидтерма'+(c?' · сюжет '+c:'')}</span>`;
+const fx=x=>F(x,2).includes(',')?F(x,2).padEnd(F(x,2).indexOf(',')+3,'0'):F(x,0)+',00';
+const MV=[{s:'α',k:20,s1:9,s2:6,a:1.8,b:1.2,dS:0.03,price:500,kk:1.5,dpi:300},{s:'β',k:25,s1:8,s2:6,a:2.0,b:1.5,dS:0.04,price:400,kk:2,dpi:150}];
+const MW=[
+ {c:'FD',title:'Кейс «Скатерть для показа коллекции»',nom:'скатерть',gen:'скатерти',acc:'скатерть',newg:'новой скатерти',area:'скатерти',mat:'Ткань',matS:'ткань',matG:'ткани',edge:'косая бейка',edgeG:'косой бейки',expl:'Ткань для скатерти продаётся в квадратных метрах и нужна на всю площадь скатерти. Косая бейка — узкая полоска ткани, которой обрабатывают срез, чтобы край не сыпался. Бейка идёт по всему краю скатерти.'},
+ {c:'ITB',title:'Кейс «Световой короб для стенда стартапа»',nom:'короб',gen:'короба',acc:'короб',newg:'нового короба',area:'лицевой стороны короба',mat:'Рекламная плёнка',matS:'плёнка',matG:'рекламной плёнки',edge:'LED-лента',edgeG:'LED-ленты',expl:'Световой короб (лайтбокс) — плоская коробка с подсветкой изнутри; спереди — изображение. Рекламная плёнка — полупрозрачная плёнка с печатью на лицевой стороне; продаётся в квадратных метрах и нужна на всю площадь лицевой стороны. LED-лента — светодиодная лента, которую клеят изнутри по краю короба. Лента идёт по всему краю короба.'},
+ {c:'GD',title:'Кейс «Баннер для выставочного стенда»',nom:'баннер',gen:'баннера',acc:'баннер',newg:'нового баннера',area:'баннера',mat:'Баннерная ткань',matS:'ткань',matG:'баннерной ткани',edge:'люверсная лента',edgeG:'люверсной ленты',expl:'Баннер — большое полотно с печатью, которое вешают на стенд. Баннерная ткань — плотный материал, на котором печатают баннер; продаётся в квадратных метрах и нужна на всю площадь баннера. Люверсная лента — усиленная полоса по краю баннера с металлическими кольцами-люверсами, за которые баннер крепят. Лента идёт по всему краю баннера.'},
+ {c:'VMF',title:'Кейс «Задник декорации для съёмки»',nom:'задник',gen:'задника',acc:'задник',newg:'нового задника',area:'задника',mat:'Холст',matS:'холст',matG:'холста',edge:'обвязочная рейка',edgeG:'обвязочной рейки',expl:'Задник — расписанное полотно за актёрами, фон сцены. Холст — ткань, на которой пишут задник; продаётся в квадратных метрах и нужен на всю площадь задника. Обвязочная рейка — деревянный брусок, на который по краю натягивают и крепят холст. Рейка идёт по всему краю задника.'},
+ {c:'ID',title:'Кейс «Ковёр под заказ»',nom:'ковёр',gen:'ковра',acc:'ковёр',newg:'нового ковра',area:'ковра',mat:'Ковровое покрытие',matS:'покрытие',matG:'покрытия',edge:'окантовочная лента',edgeG:'окантовочной ленты',expl:'Ковровое покрытие — материал, из которого вырезают ковёр; продаётся в квадратных метрах и нужно на всю площадь ковра. Окантовочная лента — тесьма, которой обшивают край ковра, чтобы он не осыпался. Лента идёт по всему краю ковра.'},
+ {c:'VMA',title:'Кейс «Экран для показа анимационного фильма»',nom:'экран',gen:'экрана',acc:'экран',newg:'нового экрана',area:'экрана',mat:'Проекционная ткань',matS:'ткань',matG:'проекционной ткани',edge:'чёрный бархатный кант',edgeG:'чёрного бархатного канта',expl:'Проекционная ткань — белое полотно, на которое проектор выводит изображение; продаётся в квадратных метрах и нужна на всю площадь экрана. Чёрный бархатный кант — тёмная полоса по краю экрана, которая даёт картинке чёткую рамку. Кант идёт по всему краю экрана.'}];
+const mb=()=>[pick(MV),pick(MW)];
+const expl=w=>`<p class="fnote" style="margin:0">${w.expl} Изделие — плоский прямоугольник; толщину, припуски, запас и нахлёст не учитываем.</p>`;
+
+/* ---------- pixel buddy ---------- */
+const SPRS={"smile":["......KKKKKKKK","....KKHHHHHHHHKK","...KHHHHhHHHHhHHK","..KHHHHHHHHHHHHHHK","..KHHHSSSSSSSSHHHK","..KhHSSSSSSSSSSHhK","..KhSSSSSSSSSSSShK","..KSSGGGSSSSGGGSSK",".KGGGSESGGGGSESGGGK",".KsSGESEGSSGESEGSsK",".KsSSGGGSSSSGGGSSsK","..KSpSSSSssSSSSpSKL","..KSSSBBBBBBBBSSSKL","..KSBBKWWWWWWKBBSK","..KBBBBKMMMMKBBBBK","...KBBBBKKKKBBBBK","....KBBBBBBBBBBK",".....KKbbbbbbKK","...KKXXKSSSSKXXKK","..KXXXXXKSSKXXXXXK",".KXXXXXXLXXLXXXXXXK","KXXXXXXXXLLXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK"],"hello":[[".....................KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCCCCKCKCKKKCKCCCKCCCCKCCCCCCCCCCCCCK",".....................KCCCCCCCCCCKCKCKCCCKCCCKCCCKCKCCCCCCCCCCCCK",".....................KCCCCCCCCCCKKKCKKCCKCCCKCCCKCKCCCCCCCCCCCCK",".....................KCCCCCCCCCCKCKCKCCCKCCCKCCCKCKCKCCCCCCCCCCK",".....................KCCCCCCCCCCKCKCKKKCKKKCKKKCCKCCKCCCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","......KKKKKKKK.......KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","....KKHHHHHHHHKK.....KCCCCCCCKKCKKCCKKKCCKCCKKKCCKCCKKCCKCCCCCCK","...KHHHHhHHHHhHHK....KCCCCCCKCCCKCKCKCCCKCKCCKCCKCKCKCKCKCCCCCCK","..KHHHHHHHHHHHHHHK...KCCCCCCKCCCKKCCKKCCKKKCCKCCKCKCKKCCKCCCCCCK","..KHHHSSSSSSSSHHHK...KCCCCCCKCCCKCKCKCCCKCKCCKCCKCKCKCKCCCCCCCCK","..KhHSSSSSSSSSSHhK...KCCCCCCCKKCKCKCKKKCKCKCCKCCCKCCKCKCKCCCCCCK","..KhSSSSSSSSSSSShK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","..KSSGGGSSSSGGGSSK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".KGGGSESGGGGSESGGGK..KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".KsSGESEGSSGESEGSsK.........KbK",".KsSSGGGSSSSGGGSSsK........KKKK","..KSpSSSSssSSSSpSKL.......KSSSSK","..KSSSBBBBBBBBSSSKL.......KSsSSK","..KSBBKWWWWWWKBBSK........KSSSSK","..KBBBBKMMMMKBBBBK.........KKKK","...KBBBBKKKKBBBBK........KXXXXXK","....KBBBBBBBBBBK.......KXXXXXK",".....KKbbbbbbKK......KXXXXXK","...KKXXKSSSSKXXKK..KXXXXXK","..KXXXXXKSSKXXXXXKXXXXXK",".KXXXXXXLXXLXXXXXXXXXK","KXXXXXXXXLLXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK"],[".....................KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCCCCKKCCKCCCKKCCKCCKCCCKCCCCCCCCCCCK",".....................KCCCCCCCCCKCCCKCKCKCKCKCKCKKCKKCCCCCCCCCCCK",".....................KCCCCCCCCCKCCCKKKCKCKCKKKCKCKCKCCCCCCCCCCCK",".....................KCCCCCCCCCKCCCKCKCKCKCKCKCKCCCKCKCCCCCCCCCK",".....................KCCCCCCCCCCKKCKCKCKCKCKCKCKCCCKCKCCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","......KKKKKKKK.......KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","....KKHHHHHHHHKK.....KCCKCKCKCCKCCKKCCCKCCKKKCKCCCKCCKCCKCKCKCCK","...KHHHHhHHHHhHHK....KCCKCKCKCKCKCKCKCKCKCCKCCKKCKKCKCKCKCKCKCCK","..KHHHHHHHHHHHHHHK...KCCCKKKCCKKKCKKCCKKKCCKCCKCKCKCKKKCKKKCKCCK","..KHHHSSSSSSSSHHHK...KCCKCKCKCKCKCKCCCKCKCCKCCKCCCKCKCKCKCKCCCCK","..KhHSSSSSSSSSSHhK...KCCKCKCKCKCKCKCCCKCKCCKCCKCCCKCKCKCKCKCKCCK","..KhSSSSSSSSSSSShK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","..KSSGGGSSSSGGGSSK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".KGGGSESGGGGSESGGGK..KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".KsSGESEGSSGESEGSsK.........KbK",".KsSSGGGSSSSGGGSSsK........KKKK","..KSpSSSSssSSSSpSKL.......KSSSSK","..KSSSBBBBBBBBSSSKL.......KSsSSK","..KSBBKWWWWWWKBBSK........KSSSSK","..KBBBBKMMMMKBBBBK.........KKKK","...KBBBBKKKKBBBBK........KXXXXXK","....KBBBBBBBBBBK.......KXXXXXK",".....KKbbbbbbKK......KXXXXXK","...KKXXKSSSSKXXKK..KXXXXXK","..KXXXXXKSSKXXXXXKXXXXXK",".KXXXXXXLXXLXXXXXXXXXK","KXXXXXXXXLLXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK"],[".....................KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCKKKCKKCCKCCKCKKCCKKKCKKKCCCCCCCCCCK",".....................KCCCCCCCKCKCKCKCKCKKCKCKCKCCCCKCCCCCCCCCCCK",".....................KCCCCCCCKCKCKKCCKKCKCKKCCKKCCCKCCCCCCCCCCCK",".....................KCCCCCCCKCKCKCCCKCCKCKCKCKCCCCKCCKCCCCCCCCK",".....................KCCCCCCCKCKCKCCCKCCKCKKCCKKKCCKCCKCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","......KKKKKKKK.......KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","....KKHHHHHHHHKK.....KCCCCCCKCKCKKCCKKKCCKCCKKKCCKCCKKCCKCCCCCCK","...KHHHHhHHHHhHHK....KCCCCCCKKCCKCKCKCCCKCKCCKCCKCKCKCKCKCCCCCCK","..KHHHHHHHHHHHHHHK...KCCCCCCKCCCKKCCKKCCKKKCCKCCKCKCKKCCKCCCCCCK","..KHHHSSSSSSSSHHHK...KCCCCCCKKCCKCCCKCCCKCKCCKCCKCKCKCCCCCCCCCCK","..KhHSSSSSSSSSSHhK...KCCCCCCKCKCKCCCKKKCKCKCCKCCCKCCKCCCKCCCCCCK","..KhSSSSSSSSSSSShK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","..KSSGGGSSSSGGGSSK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".KGGGSESGGGGSESGGGK..KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".KsSGESEGSSGESEGSsK.........KbK",".KsSSGGGSSSSGGGSSsK........KKKK","..KSpSSSSssSSSSpSKL.......KSSSSK","..KSSSBBBBBBBBSSSKL.......KSsSSK","..KSBBKWWWWWWKBBSK........KSSSSK","..KBBBBKMMMMKBBBBK.........KKKK","...KBBBBKKKKBBBBK........KXXXXXK","....KBBBBBBBBBBK.......KXXXXXK",".....KKbbbbbbKK......KXXXXXK","...KKXXKSSSSKXXKK..KXXXXXK","..KXXXXXKSSKXXXXXKXXXXXK",".KXXXXXXLXXLXXXXXXXXXK","KXXXXXXXXLLXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK"]]};
+const PAL={K:'#141412',H:'#E8DFA6',h:'#BFAE72',S:'#E3B48C',s:'#C99670',p:'#E59C86',G:'#4A2E22',E:'#141412',W:'#FFFFFF',M:'#7A2E22',B:'#CDB880',b:'#A8925E',X:'#2C2C2A',L:'#C7CACD',C:'#ACB948'};
+function buddySVG(which='smile'){const S=which==='hello'?pick(SPRS.hello):SPRS.smile;const w=Math.max(...S.map(r=>r.length)),h=S.length;let r='';
+  S.forEach((row,y)=>[...row].forEach((ch,x)=>{if(PAL[ch])r+=`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${PAL[ch]}"/>`}));
+  return `<svg class="px" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
+
+/* ---------- plot ---------- */
+function plot(fn,pts,xr,yr){
+  const W=360,H=240,P=30;const sx=x=>P+(x-xr[0])/(xr[1]-xr[0])*(W-2*P);const sy=y=>H-P-(y-yr[0])/(yr[1]-yr[0])*(H-2*P);
+  let g='';for(let x=Math.ceil(xr[0]);x<=xr[1];x++){g+=`<line x1="${sx(x)}" y1="${sy(yr[0])}" x2="${sx(x)}" y2="${sy(yr[1])}" class="gr"/>`;if(x!==0)g+=`<text x="${sx(x)}" y="${sy(0)+16}" text-anchor="middle" class="lb">${x}</text>`}
+  const st=niceStep(yr[1]-yr[0]);for(let y=Math.ceil(yr[0]/st)*st;y<=yr[1]+1e-9;y+=st){g+=`<line x1="${sx(xr[0])}" y1="${sy(y)}" x2="${sx(xr[1])}" y2="${sy(y)}" class="gr"/>`;if(Math.abs(y)>1e-9)g+=`<text x="${sx(0)-6}" y="${sy(y)+4}" text-anchor="end" class="lb">${F(y,2)}</text>`}
+  let d='';let on=false;for(let i=0;i<=300;i++){const x=xr[0]+(xr[1]-xr[0])*i/300;const y=fn(x);if(!isFinite(y)||y<yr[0]-1||y>yr[1]+1){on=false;continue}d+=(on?'L':'M')+sx(x).toFixed(1)+','+sy(Math.max(yr[0],Math.min(yr[1],y))).toFixed(1);on=true}
+  const dots=pts.map(([x,y])=>`<circle cx="${sx(x)}" cy="${sy(y)}" r="4.5" class="dt"/><text x="${sx(x)+7}" y="${sy(y)-7}" class="pl">(${F(x)}; ${F(y)})</text>`).join('');
+  return `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="График функции"><style>.gr{stroke:var(--line);stroke-width:1}.ax{stroke:var(--muted);stroke-width:1.5}.lb{fill:var(--muted);font:11px var(--font)}.pl{fill:var(--ink);font:12px var(--font)}.cv{fill:none;stroke:var(--ink);stroke-width:2.2}.dt{fill:var(--accent);stroke:var(--ink);stroke-width:1.5}</style>${g}<line x1="${sx(xr[0])}" y1="${sy(0)}" x2="${sx(xr[1])}" y2="${sy(0)}" class="ax"/><line x1="${sx(0)}" y1="${sy(yr[0])}" x2="${sx(0)}" y2="${sy(yr[1])}" class="ax"/><path d="${d}" class="cv"/>${dots}</svg>`;
+}
+function niceStep(r){const s=r/6;const p=10**Math.floor(Math.log10(s));const m=s/p;return (m<1.5?1:m<3?2:m<7?5:10)*p}
+
+/* ---------- topics ---------- */
+const TOPICS=[
+{id:'std',wk:'н2',title:'Стандартный вид и порядок величины',lead:'Очень большие и очень маленькие числа: пиксели, байты, толщина нити.',
+ formulas:[['a × 10<sup>n</sup>,   где 1 ≤ a < 10','n — сколько раз сдвинули запятую: влево — n > 0, вправо — n < 0'],['3 600 000 000 = 3,6 × 10<sup>9</sup>',''],['0,00047 = 4,7 × 10<sup>−4</sup>',''],['(a × 10<sup>m</sup>) × (b × 10<sup>k</sup>) = (a × b) × 10<sup>m+k</sup>','если a × b ≥ 10 — сдвинь запятую и прибавь 1 к степени']],
+ mistakes:[['36 × 10<sup>8</sup>','не стандартный вид: перед запятой должна стоять одна цифра от 1 до 9'],['Знак степени','число меньше 1 — степень отрицательная'],['«Две значащие цифры»','это a с одной цифрой после запятой: 1,6 × 10<sup>7</sup>, а не 1,59 × 10<sup>7</sup>'],['3 × 10<sup>7</sup> вместо 3,0 × 10<sup>7</sup>','если просят две значащие цифры, ноль после запятой пишем']],
+ gens:{
+  'Запиши в стандартном виде':()=>{const d=ri(11,99);let n=pick([-7,-6,-5,-4,-3,3,4,5,6,7,8,9]);if(d%10===0&&false);const a=d/10;
+    return{q:`Запишите число в стандартном виде a × 10<sup>n</sup>:<br>${N(expandNum(d,n))}`,fields:[num('a =',a,{tol:1e-9}),num('n =',n)],
+     hints:['Поставь запятую так, чтобы перед ней осталась одна ненулевая цифра.','Посчитай, на сколько знаков сдвинулась запятая. Сдвиг влево — степень положительная, вправо — отрицательная.'],
+     sol:[`${expandNum(d,n)} = ${F(a,1)} × 10${pw(n)}`]}},
+  'Пиксели кадра':()=>{const [w,h]=pick([[4032,3024],[3840,2160],[1920,1080],[6000,4000],[5472,3648],[2560,1440],[7680,4320],[4608,3456],[6720,4480]]);
+    const p=w*h;let n=Math.floor(Math.log10(p));let a=r2(p/10**n,1);if(a>=10){a=1;n++}
+    return{q:`Кадр — ${N(F(w,0)+' × '+F(h,0))} пикселей. Сколько всего пикселей? Запишите в стандартном виде с двумя значащими цифрами: a × 10<sup>n</sup>.`,fields:[num('a =',a,{tol:1e-9}),num('n =',n)],
+     hints:[`Перемножь стороны: ${F(w,0)} × ${F(h,0)}.`,'Оставь две значащие цифры: одна до запятой, одна после. Округляй по правилам.'],
+     sol:[`${F(w,0)} × ${F(h,0)} = ${F(p,0)}`,`≈ ${F(a,1)} × 10${pw(n)}`]}},
+  'Во сколько раз больше':()=>{const n=ri(3,7);let a1=ri(12,95)/10,a2=ri(12,95)/10;const x=a1*10**(n+1),y=a2*10**n;const ans=r2(x/y,1);
+    return{q:`Во сколько раз ${N(F(a1,1)+' × 10'+pw(n+1))} больше, чем ${N(F(a2,1)+' × 10'+pw(n))}? Ответ округлите до десятых.`,fields:[num('в',ans,{tol:0.051,unit:'раза'})],
+     hints:['Раздели числа отдельно: a на a и степени на степени.',`10${pw(n+1)} : 10${pw(n)} = 10.`],
+     sol:[`(${F(a1,1)} : ${F(a2,1)}) × 10 = ${F(a1/a2,3)} × 10 ≈ ${F(ans,1)}`]}},
+  'Произведение':()=>{const a=pick([1.5,2,2.5,3,4,5,6,8]),b=pick([1.2,1.5,2,2.5,3,4,5]);const m=ri(2,6),k=pick([-3,-2,2,3,4]);let c=a*b,n=m+k;if(c>=10){c=c/10;n++}
+    return{q:`Вычислите и запишите результат в стандартном виде a × 10<sup>n</sup>. Найдите a и n: ${N('('+F(a,1)+' × 10'+pw(m)+') × ('+F(b,1)+' × 10'+pw(k)+')')}`,fields:[num('a =',r2(c,3),{tol:1e-6}),num('n =',n)],
+     hints:['Перемножь числа отдельно, степени — отдельно: показатели складываются.','Если получилось 10 или больше, сдвинь запятую на один знак влево и прибавь 1 к степени.'],
+     sol:[`${F(a,1)} × ${F(b,1)} = ${F(a*b,2)}; 10${pw(m)} × 10${pw(k)} = 10${pw(m+k)}`,`${F(a*b,2)} × 10${pw(m+k)} = ${F(c,3)} × 10${pw(n)}`]}}
+ }},
+{id:'prog',wk:'н2',title:'Прогрессии и форматы A',lead:'Каждый следующий шаг прибавляет одно и то же или умножает на одно и то же. Листы A — геометрическая прогрессия.',
+ formulas:[['арифметическая: a<sub>n</sub> = a<sub>1</sub> + (n − 1) × d','d — разность: что прибавляем'],['геометрическая: b<sub>n</sub> = b<sub>1</sub> × q<sup>n − 1</sup>','q — знаменатель: на что умножаем'],['площадь листа An = 1 : 2<sup>n</sup> м²','A0 = 1 м², A4 = 1/16 м²'],['An больше Ak в 2<sup>k − n</sup> раз','«через один» лист — в 4 раза'],['стороны листа: a : b = √2','половина листа подобна целому']],
+ mistakes:[['n вместо n − 1','у 6-го члена множитель q в 5-й степени, а не в 6-й'],['A6 = 1/32','сделали шаг меньше: A6 = 1/2<sup>6</sup> = 1/64'],['Сумма дробей','приведи к общему знаменателю — самой большой степени двойки']],
+ gens:{
+  'Арифметическая прогрессия':()=>{const a1=ri(2,20),d=ri(2,9),n=ri(6,15);const an=a1+(n-1)*d;
+    return{q:`Арифметическая прогрессия: ${N(a1+', '+(a1+d)+', '+(a1+2*d)+', …')} Найдите ${n}-й член.`,fields:[num(`a${n} =`,an,{traps:[[a1+n*d,'Шагов на один меньше, чем номер члена: a<sub>n</sub> = a<sub>1</sub> + (n − 1) × d.']]})],
+     hints:[`Разность d = ${a1+d} − ${a1} = ${d}.`,`a${n} = a1 + (${n} − 1) × d.`],sol:[`${a1} + ${n-1} × ${d} = ${an}`]}},
+  'Геометрическая прогрессия':()=>{const b1=ri(2,5),q=pick([2,3]),n=ri(4,7);const bn=b1*q**(n-1);
+    return{q:`Геометрическая прогрессия: ${N(b1+', '+b1*q+', '+b1*q*q+', …')} Найдите ${n}-й член.`,fields:[num(`b${n} =`,bn,{traps:[[b1*q**n,'Степень на один меньше номера: b<sub>n</sub> = b<sub>1</sub> × q<sup>n − 1</sup>.'],[b1*q*(n-1),'Это не умножение на (n − 1), а степень: q<sup>n − 1</sup>.']]})],
+     hints:[`Знаменатель q = ${b1*q} : ${b1} = ${q}.`,`b${n} = b1 × q${pw(n-1)}.`],sol:[`${b1} × ${q}${pw(n-1)} = ${b1} × ${q**(n-1)} = ${bn}`]}},
+  'Площадь листа A':()=>{const n=ri(3,10);return{q:`Площадь листа A0 — 1 м², каждый следующий формат вдвое меньше. Какова площадь листа A${n}? Ответ — дробью, например 1/8.`,fields:[num('S =',1/2**n,{unit:'м²',show:'1/'+2**n,traps:[[1/2**(n-1),`Сдвиг на один лист: площадь A${n} = 1 : 2<sup>${n}</sup>.`],[1/2**(n+1),`Сдвиг на один лист: площадь A${n} = 1 : 2<sup>${n}</sup>.`],[1/(2*n),'Площадь делится пополам n раз — это степень двойки, а не 2 × n.']]})],
+     hints:['A1 = 1/2, A2 = 1/4, A3 = 1/8: каждый шаг — ещё раз пополам.',`An = 1 : 2${pw('n')} м².`],sol:[`A${n} = 1 : 2${pw(n)} = 1/${2**n} м²`]}},
+  'Во сколько раз больше лист':()=>{const m=ri(0,5),k=m+ri(2,4);return{q:`Во сколько раз площадь листа A${m} больше площади листа A${k}?`,fields:[num('в',2**(k-m),{unit:'раз'})],
+     hints:['Каждый шаг по номеру — площадь вдвое меньше.',`Шагов от A${m} до A${k}: ${k-m}.`],sol:[`2${pw(k-m)} = ${2**(k-m)}`]}},
+  'Сумма площадей листов':()=>{const set=pick([[2,4,6],[1,3,5],[3,4,5],[2,3,4],[0,2,4],[4,6,8],[1,2,3,4]]);const mx=Math.max(...set);const numr=set.reduce((s,n)=>s+2**(mx-n),0);
+    return{q:`Площадь A0 — 1 м², каждый следующий формат вдвое меньше. Найдите сумму площадей листов ${set.map(n=>'A'+n).join(', ')}. Ответ — дробью.`,fields:[num('S =',numr/2**mx,{unit:'м²',show:numr+'/'+2**mx,traps:set.includes(0)?[[(numr-2**mx)/2**mx,'Не забудь A0 — его площадь 1 м².']]:[]})],
+     hints:['Запиши площадь каждого листа: An = 1/2<sup>n</sup>.',`Общий знаменатель — ${2**mx}.`],sol:[set.map(n=>'1/'+2**n).join(' + ')+' = '+set.map(n=>2**(mx-n)).join(' + ')+'/'+2**mx+' = '+numr+'/'+2**mx+' м²']}}
+ }},
+{id:'err',wk:'н3',title:'Приближённые вычисления и погрешность',lead:'Любой замер неточен. Записываем a ± Δ и считаем, сколько материала купить с запасом.',
+ formulas:[['a ± Δ   →   границы: a − Δ … a + Δ',''],['относительная погрешность: δ = Δ : a × 100 %','две значащие цифры'],['периметр: ΔP = сумма погрешностей всех сторон','прямоугольник: ΔP = 2 × (Δa + Δb)'],['площадь: δS = δa + δb','ΔS = S × δS, округляем вверх до одной значащей цифры'],['проверка границами: (a − Δ)(b − Δ) и (a + Δ)(b + Δ)',''],['закупка — по наибольшей: S + ΔS','']],
+ mistakes:[['0,02 без %','относительную погрешность пишем в процентах'],['Погрешность площади через сложение Δ','для площади складываются относительные погрешности δ, а не Δ'],['Округление Δ вниз','Δ округляют только вверх'],['Покупка по S','материала не хватит: покупаем по S + ΔS']],
+ gens:{
+  'Относительная погрешность и границы':()=>{const L=ri(50,600)/100,D=pick([0.01,0.02,0.03,0.05]);const d=D/L*100;const s=sig2(d);
+    return{q:`Длина измерена так: ${N(F(L,2)+' ± '+F(D,2)+' м')}. Найдите относительную погрешность (в %, две значащие цифры) и границы настоящего значения.`,
+     fields:[num('δ =',s,{tol:Math.max(0.6*10**(Math.floor(Math.log10(d))-1),1e-9),unit:'%',show:F(s,3)+' %'}),num('от',r2(L-D,2),{unit:'м'}),num('до',r2(L+D,2),{unit:'м'})],
+     hints:[`δ = Δ : a = ${F(D,2)} : ${F(L,2)}. Умножь на 100 %.`,'Границы: a − Δ и a + Δ.'],sol:[`δ = ${F(D,2)} : ${F(L,2)} = ${F(D/L,5)} ≈ ${F(s,3)} %`,`${F(L-D,2)} … ${F(L+D,2)} м`]}},
+  'Площадь с погрешностью':()=>{let a,b,S,rule,dev;do{a=ri(12,32)/10;b=ri(8,22)/10;S=a*b;rule=S*(0.01/a+0.01/b);dev=Math.max(S-(a-.01)*(b-.01),(a+.01)*(b+.01)-S)}while(Math.abs(ceil1(rule)-ceil1(dev))>1e-9);
+    return{q:`Размеры полотна — ${N(F(a,2)+' × '+F(b,2)+' м')}, каждая сторона известна с погрешностью 0,01 м. Найдите площадь S и её абсолютную погрешность ΔS. ΔS округлите вверх до одной значащей цифры.`,
+     fields:[num('S =',r2(S,4),{tol:0.006,unit:'м²'}),num('Δ =',ceil1(rule),{tol:1e-9,unit:'м²',exact:rule,up:true})],
+     hints:[`S = ${F(a,2)} × ${F(b,2)}. δS = 0,01 : ${F(a,2)} + 0,01 : ${F(b,2)}.`,'ΔS = S × δS — и округли вверх до одной значащей цифры. Проверка: перемножь границы сторон.'],
+     sol:[`S = ${F(S,4)} м²`,`δS = ${F(0.01/a*100,2)} % + ${F(0.01/b*100,2)} % ≈ ${F((0.01/a+0.01/b)*100,2)} %`,`ΔS = ${F(S,4)} × ${F(0.01/a+0.01/b,4)} ≈ ${F(rule,4)} → вверх ${F(ceil1(rule),2)}`,`Проверка: ${F((a-.01)*(b-.01),4)} … ${F((a+.01)*(b+.01),4)}`]}},
+  'Закупка по наибольшей площади':()=>{const S=ri(150,600)/100,D=pick([0.02,0.03,0.04,0.05]),pr=pick([400,450,500,600,700,800]);const c=(S+D)*pr;
+    return{q:`Площадь баннера — ${N(F(S,2)+' ± '+F(D,2)+' м²')}. Ткань стоит ${N(F(pr,0)+' сом')} за м². Сколько стоит ткань, если закупать по наибольшему возможному значению площади?`,
+     fields:[num('стоимость',r2(c,0),{tol:1.01,unit:'сом',traps:[[S*pr,'Закупаем по наибольшей площади: S + ΔS, а не по S.'],[(S-D)*pr,'Закупаем по наибольшей площади: S + ΔS, а не по наименьшей.']]})],hints:['Наибольшая площадь — S + Δ.','Умножь её на цену за м².'],sol:[`${F(S,2)} + ${F(D,2)} = ${F(S+D,2)} м²`,`${F(S+D,2)} × ${pr} = ${F(c,2)} сом`]}},
+  'Периметр с погрешностью':()=>{const a=ri(50,300)/10,b=ri(40,200)/10,D=pick([0.1,0.2]);
+    return{q:`Стороны рамки: ${N(F(a,1)+' ± '+F(D,1)+' см')} и ${N(F(b,1)+' ± '+F(D,1)+' см')}. Найдите периметр P и его абсолютную погрешность ΔP.`,fields:[num('P =',r2(2*(a+b),2),{unit:'см'}),num('ΔP =',r2(4*D,2),{unit:'см',traps:[[2*D,'Сторон четыре, у каждой своя погрешность: ΔP = 4 × Δ.'],[D,'Погрешности сторон складываются: ΔP = 4 × Δ.']]})],
+     hints:['P = 2 × (a + b).','У периметра четыре стороны — погрешности всех четырёх складываются.'],sol:[`P = 2 × (${F(a,1)} + ${F(b,1)}) = ${F(2*(a+b),1)} см`,`ΔP = 2 × (${F(D,1)} + ${F(D,1)}) = ${F(4*D,1)} см`]}}
+ }},
+{id:'pow',wk:'н4',title:'Степени и корни',lead:'Дробный показатель — это корень и степень сразу. Отрицательный — «один делить на».',
+ formulas:[['a<sup>p/q</sup> = (<sup>q</sup>√a)<sup>p</sup>','сначала корень, потом степень — так числа меньше'],['a<sup>−n</sup> = 1 : a<sup>n</sup>','2<sup>−3</sup> = 1/8, а не −8'],['a<sup>1/2</sup> = √a,   a<sup>1/3</sup> = ∛a',''],['a<sup>m</sup> × a<sup>n</sup> = a<sup>m+n</sup>,   (a<sup>m</sup>)<sup>n</sup> = a<sup>mn</sup>','']],
+ mistakes:[['8<sup>2/3</sup> = 16/3','дробный показатель — это не умножение на дробь: ∛8 = 2, 2<sup>2</sup> = 4'],['2<sup>−3</sup> = −8','минус в показателе даёт дробь, а не отрицательное число'],['Возводить до корня','27<sup>2/3</sup>: удобнее ∛27 = 3, потом 3<sup>2</sup> = 9, чем 27<sup>2</sup> = 729 и корень']],
+ gens:{
+  'Дробный показатель':()=>{const q=pick([2,3,4,5]);const r={2:ri(2,9),3:ri(2,5),4:pick([2,3]),5:2}[q];const base=r**q;let p=pick([1,2,3].filter(x=>x!==q&&r**x<=1000));
+    return{q:`Вычислите: ${N(F(base,0)+sup(p+'/'+q))}`,fields:[num('=',r**p)],hints:[`Сначала корень ${q}-й степени из ${F(base,0)}.`,`Потом результат — в степень ${p}.`],sol:[`${q===2?'√':q===3?'∛':'⁽'+q+'⁾√'}${F(base,0)} = ${r}`,`${r}${pw(p)} = ${r**p}`]}},
+  'Отрицательный показатель':()=>{const q=pick([1,2,3]);const r=q===1?ri(2,6):q===2?ri(2,9):ri(2,5);const base=r**q;const p=q===1?ri(1,3):pick([1,2]);const v=r**p;
+    return{q:`Вычислите: ${N(F(base,0)+sup('−'+(q===1?p:p+'/'+q)))}  Ответ — дробью, например 1/8.`,fields:[num('=',1/v,{show:'1/'+v})],hints:['Минус в показателе: 1 разделить на то же число с плюсом.',q===1?`${base}${pw(p)} = ${v}`:`${F(base,0)}${sup(p+'/'+q)} = (корень ${q}-й степени)${pw(p)}`],sol:[`= 1 : ${v} = 1/${v}`]}},
+  'Сумма как на мидтерме':()=>{const q=pick([2,3,4]);const r={2:ri(2,9),3:ri(2,5),4:pick([2,3])}[q];const p=q===2?pick([1,3]):pick([1,2]);const t=pick([2,3,4]);const m=ri(1,3);const s=t*m;
+    return{q:`Вычислите: ${N(F(r**q,0)+sup(p+'/'+q)+' + √'+F(s*s,0)+' × '+t+sup('−1'))}`,fields:[num('=',r**p+m)],hints:[`${F(r**q,0)}${sup(p+'/'+q)}: корень ${q}-й степени, потом степень ${p}.`,`√${s*s} = ${s}; ${t}<sup>−1</sup> = 1/${t}.`],sol:[`${F(r**q,0)}${sup(p+'/'+q)} = ${r}${pw(p)} = ${r**p}`,`√${s*s} × ${t}<sup>−1</sup> = ${s} : ${t} = ${m}`,`${r**p} + ${m} = ${r**p+m}`]}}
+ }},
+{id:'scale',wk:'н4',title:'Масштаб и DPI',lead:'Чертёж ↔ натура и сантиметры ↔ пиксели — одна и та же линейная зависимость.',
+ formulas:[['масштаб 1 : k   →   натура = чертёж × k',''],['чертёж = натура : k','переведи в одни единицы: 1 м = 100 см'],['1 дюйм = 2,54 см',''],['пиксели = сантиметры : 2,54 × DPI','округляем вверх'],['сантиметры = пиксели : DPI × 2,54','']],
+ mistakes:[['360 м вместо 3,6 м','перевод см → м: делим на 100'],['Забыли дюймы','DPI — точек на дюйм, сначала переводим см в дюймы'],['1417 вместо 1418 px','пикселей должно хватить: округляем только вверх']],
+ gens:{
+  'Чертёж → натура':()=>{const k=pick([10,20,25,40,50,100,200]),c=ri(15,120)/10;return{q:`Масштаб ${N('1 : '+k)}. На чертеже отрезок ${N(F(c,1)+' см')}. Сколько это в натуре, в метрах?`,fields:[num('',r2(c*k/100,3),{unit:'м'})],hints:[`В натуре в ${k} раз больше: ${F(c,1)} × ${k} см.`,'Переведи сантиметры в метры: : 100.'],sol:[`${F(c,1)} × ${k} = ${F(c*k,1)} см = ${F(c*k/100,3)} м`]}},
+  'Натура → чертёж':()=>{const k=pick([20,25,50,100]),L=ri(15,90)/10;return{q:`Стена длиной ${N(F(L,1)+' м')}. Какой длины она будет на чертеже в масштабе ${N('1 : '+k)}, в сантиметрах?`,fields:[num('',r2(L*100/k,3),{tol:0.051,unit:'см'})],hints:['Переведи метры в сантиметры.',`Раздели на ${k}.`],sol:[`${F(L,1)} м = ${F(L*100,0)} см`,`${F(L*100,0)} : ${k} = ${F(L*100/k,2)} см`]}},
+  'Сантиметры → пиксели':()=>{const cm=pick([4,5,6,7,8,9,10,12,15,18,20]),dpi=pick([150,200,300,600]);const px=cm/2.54*dpi;const ans=Math.ceil(px-1e-9);
+    return{q:`Эскиз шириной ${N(cm+' см')} сканируют с разрешением ${N(dpi+' DPI')}. Сколько пикселей по ширине? Округлите в нужную сторону.`,fields:[num('',ans,{unit:'px',exact:px,up:true,traps:[[cm*dpi,'DPI — точек на дюйм. Сначала переведи сантиметры в дюймы: : 2,54.']]})],hints:[`Переведи в дюймы: ${cm} : 2,54.`,`Умножь на ${dpi} и округли вверх.`],sol:[`${cm} : 2,54 × ${dpi} = ${F(px,2)} → вверх ${ans} px`]}},
+  'Пиксели → сантиметры':()=>{const px=pick([1200,1500,1800,2400,3000,3600]),dpi=pick([150,300]);const cm=px/dpi*2.54;
+    return{q:`Фото шириной ${N(F(px,0)+' px')}. Какой ширины получится отпечаток, если печатать с разрешением ${N(dpi+' DPI')}? Ответ в сантиметрах, до десятых.`,fields:[num('',r2(cm,1),{tol:0.051,unit:'см'})],hints:[`Дюймы: ${F(px,0)} : ${dpi}.`,'Переведи дюймы в сантиметры: × 2,54.'],sol:[`${F(px,0)} : ${dpi} = ${F(px/dpi,2)} дюйма`,`× 2,54 = ${F(cm,2)} ≈ ${F(cm,1)} см`]}}
+ }},
+{id:'sim',wk:'н5',title:'Подобие: k, k², k³',lead:'Увеличили всё в k раз: длина растёт в k, площадь — в k², объём и масса — в k³.',
+ formulas:[['длина, периметр, кант   × k',''],['площадь, краска, ткань, пиксели   × k²',''],['объём, масса   × k³',''],['масштаб 1 : 20 → k = 20','макет → оригинал'],['площадь выросла в N раз → сторона в √N раз','']],
+ mistakes:[['6 л краски вместо 18 л','краска на площадь — через k², а не k'],['16 кг вместо 1 кг','масса — через k³'],['Ответ в граммах вместо килограммов','при k³ числа большие — переводи единицы']],
+ gens:{
+  'Краска или ткань (k²)':()=>{const k=pick([2,3,4,5,1.5,2.5]);const [what,u,m]=pick([['краски',' л',ri(1,4)],['ткани',' м²',ri(2,6)],['плёнки',' м²',ri(1,5)]]);
+    return{q:`Логотип увеличили в ${N(F(k,1))} ${RAZ(k)} по ширине и высоте. На старый логотип ушло ${N(m+u)} ${what}. Сколько ${what} нужно на новый логотип (тем же слоем)?`,fields:[num('',r2(m*k*k,3),{unit:u.trim(),traps:[[m*k,'Краска и ткань идут на площадь: умножаем на k², а не на k.']]})],hints:['Краска и ткань идут на площадь.',`Площадь растёт в k² = ${F(k*k,2)} раза.`],sol:[`${m} × ${F(k,1)}<sup>2</sup> = ${m} × ${F(k*k,2)} = ${F(m*k*k,2)}${u}`]}},
+  'Масса макета (k³)':()=>{const k=pick([5,8,10,20]),g=pick([40,50,80,100,200,250,300]);const kg=g*k**3/1000;
+    return{q:`Макет скульптуры в масштабе ${N('1 : '+k)} весит ${N(g+' г')}. Сколько весит оригинал из того же материала? Ответ в килограммах.`,fields:[num('',r2(kg,3),{unit:'кг',traps:[[g*k/1000,'Масса растёт как объём: умножаем на k³, а не на k.'],[g*k*k/1000,'Масса растёт как объём: k³, а не k² — у тела три измерения.']]})],hints:['Масса растёт как объём.',`k³ = ${k}<sup>3</sup> = ${k**3}. Граммы → килограммы: : 1000.`],sol:[`${g} × ${k**3} = ${F(g*k**3,0)} г = ${F(kg,3)} кг`]}},
+  'Периметр и площадь':()=>{const a=ri(10,30)/10,b=ri(6,20)/10,k=pick([1.5,2,2.5,3]);
+    return{q:`Скатерть ${N(F(a,1)+' × '+F(b,1)+' м')} сделали той же формы, но все размеры увеличили в ${N(F(k,1))} ${RAZ(k)}. Кант пришивают по всему краю. Найдите длину канта P и площадь S новой скатерти.`,fields:[num('P =',r2(2*(a+b)*k,3),{unit:'м',traps:[[2*(a+b),'Это периметр старой скатерти — умножь на k.'],[2*(a+b)*k*k,'Периметр — это длина: растёт в k раз, а не в k².'],[(a+b)*k,'Периметр — сумма всех четырёх сторон: 2 × (a + b).']]}),num('S =',r2(a*b*k*k,4),{tol:0.006,unit:'м²',traps:[[a*b*k,'Площадь растёт в k² раз, а не в k.'],[a*b,'Это площадь старой скатерти — умножь на k².']]})],
+     hints:['Сначала периметр и площадь старой скатерти.',`Периметр × ${F(k,1)}, площадь × ${F(k*k,2)}.`],sol:[`P = 2 × (${F(a,1)} + ${F(b,1)}) × ${F(k,1)} = ${F(2*(a+b),1)} × ${F(k,1)} = ${F(2*(a+b)*k,2)} м`,`S = ${F(a*b,2)} × ${F(k*k,2)} = ${F(a*b*k*k,4)} м²`]}},
+  'Обратная: сторона по площади':()=>{const k=pick([2,3,4,5,1.5]);return{q:`Макет увеличили, форма осталась той же. Площадь выросла в ${N(F(k*k,2))} ${RAZ(k*k)}. Во сколько раз выросла каждая сторона?`,fields:[num('в',k,{unit:RAZ(k),traps:[[k*k/2,'Сторона растёт в √(рост площади) раз, а не в половину.'],[k*k,'Это рост площади. Сторона растёт в √ от этого числа.']]})],hints:['Площадь растёт в k².',`k = √${F(k*k,2)}.`],sol:[`√${F(k*k,2)} = ${F(k,1)}`]}}
+ }},
+{id:'comp',wk:'н6',title:'Пропорции в композиции',lead:'Золотое сечение, Фибоначчи, модульная сетка и правило третей — числа за композицией.',
+ formulas:[['φ = (1 + √5) : 2 ≈ 1,618','1 : φ ≈ 0,618;   φ<sup>2</sup> = φ + 1'],['золотой прямоугольник: длинная = короткая × 1,618',''],['деление отрезка L: большая часть ≈ L × 0,618','меньшая = L − большая'],['Фибоначчи: 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89','отношение соседних → φ'],['колонка = (полоса − 2 × поле − (n − 1) × межколонник) : n',''],['правило третей: линии на W/3, 2W/3 и H/3, 2H/3','']],
+ mistakes:[['Забыли межколонники','их на один меньше, чем колонок'],['Поля один раз','полей два — слева и справа'],['A4 — золотой прямоугольник','нет: у A4 отношение √2 ≈ 1,414']],
+ gens:{
+  'Золотой прямоугольник':()=>{const a=ri(60,300);return{q:`Короткая сторона прямоугольника золотого сечения — ${N(a+' мм')}. Найдите длинную сторону (до целого мм).`,fields:[num('',Math.round(a*PHI),{tol:1.01,unit:'мм'})],hints:['Длинная = короткая × φ.','φ ≈ 1,618.'],sol:[`${a} × 1,618 = ${F(a*PHI,1)} ≈ ${Math.round(a*PHI)} мм`]}},
+  'Деление в золотом сечении':()=>{const L=ri(50,300);const big=L/PHI;return{q:`Отрезок ${N(L+' мм')} разделите в золотом сечении. Найдите большую и меньшую части (до целого мм).`,fields:[num('большая',Math.round(big),{tol:1.01,unit:'мм'}),num('меньшая',Math.round(L-big),{tol:1.01,unit:'мм'})],hints:['Большая часть = L × 0,618.','Меньшая = L − большая.'],sol:[`${L} × 0,618 ≈ ${F(big,1)} мм`,`${L} − ${F(big,1)} ≈ ${F(L-big,1)} мм`]}},
+  'Модульная сетка':()=>{const W=pick([210,297,420,1000,1200]),u=W>500?'px':'мм';const m=W>500?pick([40,60,80]):pick([15,20,25]),n=pick([2,3,4,6]),g=W>500?pick([16,20,24]):pick([4,5,6]);const c=(W-2*m-(n-1)*g)/n;
+    return{q:`Полоса шириной ${N(W+' '+u)}, поля по ${N(m+' '+u)}, ${N(pl(n,['колонка','колонки','колонок']))}, межколонник ${N(g+' '+u)}. Найдите ширину одной колонки (до десятых).`,fields:[num('',r2(c,1),{tol:0.051,unit:u,exact:c,traps:[[(W-2*m-n*g)/n,'Межколонников на один меньше, чем колонок.'],[(W-m-(n-1)*g)/n,'Полей два — слева и справа.'],[(W-(n-1)*g)/n,'Не забудь вычесть поля.'],[(W-2*m)/n,'Не забудь вычесть межколонники.']]})],hints:[`Вычти поля: ${W} − 2 × ${m}.`,`Межколонников ${n-1}. Остаток раздели на ${n}.`],sol:[`(${W} − ${2*m} − ${(n-1)*g}) : ${n} = ${W-2*m-(n-1)*g} : ${n} = ${F(c,2)} ${u}`]}},
+  'Правило третей':()=>{const [W,H]=pick([[1920,1080],[1080,1350],[3840,2160],[1200,900],[3000,2000]]);return{q:`Кадр ${N(W+' × '+H+' px')}. Координаты отсчитываем от левого верхнего угла кадра. Найдите x левой вертикальной линии третей и y верхней горизонтальной линии третей.`,fields:[num('x =',r2(W/3,1),{tol:0.51,unit:'px'}),num('y =',r2(H/3,1),{tol:0.51,unit:'px'})],hints:['Линии делят ширину и высоту на три равные части.',`x = ${W} : 3, y = ${H} : 3.`],sol:[`x = ${F(W/3,1)}, y = ${F(H/3,1)}`]}},
+  'Фибоначчи и φ':()=>{const fib=[1,1,2,3,5,8,13,21,34,55,89,144];const i=ri(5,10);return{q:`Найдите отношение соседних чисел Фибоначчи ${N(fib[i+1]+' : '+fib[i])} с точностью до тысячных. (Для сравнения: φ ≈ 1,618.)`,fields:[num('',r2(fib[i+1]/fib[i],3),{tol:0.0011})],hints:['Раздели большее на меньшее.','Округли до трёх знаков после запятой.'],sol:[`${fib[i+1]} : ${fib[i]} = ${F(fib[i+1]/fib[i],4)} ≈ ${F(fib[i+1]/fib[i],3)}`]}}
+ }},
+{id:'func',wk:'н6–7',title:'Функция по графику и таблице',lead:'Узнаём зависимость по точкам, находим наибольшее и наименьшее значение на отрезке.',
+ formulas:[['y = kx   → x × 2, y × 2','прямая через начало'],['y = k/x   → x × 2, y : 2','xy = k — гипербола'],['y = ax²   → x × 2, y × 4','парабола'],['y = ax³   → x × 2, y × 8',''],['коэффициент: подставь точку, например x = 1',''],['наибольшее и наименьшее на отрезке — на концах или в вершине (для ax² — в x = 0)','']],
+ mistakes:[['«Линейная» на глаз','проверь, во сколько раз растёт y, когда x растёт вдвое'],['Значение без x','пиши «наиб. 6 при x = 2»'],['Наименьшее на конце у параболы','если отрезок проходит через 0, наименьшее у y = ax² — в x = 0']],
+ gens:{
+  'Тип зависимости по точкам':()=>{const t=pick(['kx','k/x','ax²','ax³']);let c,f,xs;
+    if(t==='kx'){c=ri(2,6);f=x=>c*x;xs=[1,2,3]}else if(t==='k/x'){c=pick([6,8,12,18,24]);f=x=>c/x;xs=pick([[1,2,4],[1,3,6],[2,4,6]].filter(a=>a.every(x=>c%x===0)))||[1,2,c];}else if(t==='ax²'){c=pick([0.5,1,2,3]);f=x=>c*x*x;xs=[1,2,3]}else{c=pick([0.2,0.5,1,2]);f=x=>c*x**3;xs=[1,2,3]}
+    const pts=xs.map(x=>[x,f(x)]);const ymax=Math.max(...pts.map(p=>p[1]))*1.15;
+    return{q:`Это одна из функций: y = kx, y = k/x, y = ax², y = ax³. Её график проходит через отмеченные точки. Какая это функция? Чему равен коэффициент?`,extra:plot(f,pts,[0,Math.max(...xs)+1],[0,ymax])+`<div class="tblwrap"><table class="tbl"><tr><th>x</th>${pts.map(p=>`<td>${F(p[0])}</td>`).join('')}</tr><tr><th>y</th>${pts.map(p=>`<td>${F(p[1])}</td>`).join('')}</tr></table></div>`,
+     fields:[choice('тип',['y = kx','y = k/x','y = ax²','y = ax³'],t==='kx'?'y = kx':t==='k/x'?'y = k/x':t==='ax²'?'y = ax²':'y = ax³'),num(t.startsWith('k')?'k =':'a =',c)],
+     hints:['Возьми две точки, где x вырос вдвое (или втрое). Во сколько раз изменился y?','Коэффициент: подставь одну точку в формулу.'],
+     sol:[`x: ${F(pts[0][0])} → ${F(pts[1][0])}, y: ${F(pts[0][1])} → ${F(pts[1][1])}`,`это ${t==='kx'?'y = kx':t==='k/x'?'y = k/x':t==='ax²'?'y = ax²':'y = ax³'}, коэффициент ${F(c)}`]}},
+  'Наибольшее и наименьшее на отрезке':()=>{const t=pick(['k/x','ax²','ax³']);let f,c,p,q,label;
+    if(t==='k/x'){c=pick([6,8,12,24]);f=x=>c/x;p=pick([1,2]);q=pick([4,6].filter(v=>v>p));label=`y = ${c}/x`}
+    else if(t==='ax²'){c=pick([0.5,1,2]);f=x=>c*x*x;p=pick([-3,-2,-1,1]);q=ri(2,4);label=`y = ${F(c)}x²`}
+    else{c=pick([0.5,1,2]);f=x=>c*x**3;p=pick([-2,-1,0,1]);q=ri(2,3);label=`y = ${F(c)}x³`}
+    const cand=[p,q];if(t==='ax²'&&p<0&&q>0)cand.push(0);const vals=cand.map(f);const mx=Math.max(...vals),mn=Math.min(...vals);
+    return{q:`Функция ${N(label)} на отрезке ${N('['+p+'; '+q+']')}. Найдите наибольшее и наименьшее значения.`,extra:plot(f,[[p,f(p)],[q,f(q)]],[Math.min(p,0)-0.5,q+0.5],[Math.min(0,mn)-Math.abs(mx-mn)*0.1-0.5,mx*1.15+0.5]),
+     fields:[num('наибольшее',r2(mx,4)),num('наименьшее',r2(mn,4))],hints:['Посчитай значения на концах отрезка.',t==='ax²'?'Если отрезок проходит через x = 0, проверь и вершину: y(0) = 0.':'Функция на этом отрезке монотонна — экстремумы на концах.'],
+     sol:cand.map(x=>`y(${x}) = ${F(f(x),3)}`).concat([`наиб. ${F(mx,3)}, наим. ${F(mn,3)}`])}},
+  'Возрастает или убывает':()=>{const t=pick(['k/x','kx','ax²','ax³','−kx']);let f,label,p=ri(1,3),q=p+ri(2,4),ans;
+    if(t==='k/x'){const c=pick([6,12]);f=x=>c/x;label=`y = ${c}/x`;ans='убывает'}else if(t==='kx'){const c=ri(2,5);f=x=>c*x;label=`y = ${c}x`;ans='возрастает'}else if(t==='ax²'){const c=pick([1,2]);f=x=>c*x*x;if(Math.random()<.5){p=-q;q=-1}label=`y = ${c===1?'':c}x²`;ans=q<=0?'убывает':'возрастает'}else if(t==='ax³'){f=x=>x**3;label='y = x³';ans='возрастает'}else{const c=ri(2,4);f=x=>-c*x;label=`y = −${c}x`;ans='убывает'}
+    return{q:`Функция ${N(label)} на отрезке ${N('['+p+'; '+q+']')} возрастает или убывает?`,fields:[choice('',['возрастает','убывает'],ans)],hints:['Посчитай y на левом и на правом конце.','Если y справа больше — возрастает.'],sol:[`y(${p}) = ${F(f(p),2)}, y(${q}) = ${F(f(q),2)} → ${ans}`]}}
+ }},
+{id:'midA',wk:'н7',title:'Мидтерм: часть A',lead:'Задачи A1–A6: настоящие из вариантов α и β и такие же по мотивам, с другими числами. Выбери номер в списке или решай подряд.',
+ formulas:[['a × 10<sup>n</sup>, 1 ≤ a &lt; 10','две значащие: 2,0 × 10<sup>7</sup> — ноль пишем'],['площадь An = 1 : 2<sup>n</sup> м²','A0 = 1 м²'],['a<sup>m/n</sup> = (<sup>n</sup>√a)<sup>m</sup>; a<sup>−1</sup> = 1/a',''],['δ = Δ : a × 100 %','границы: a − Δ … a + Δ'],['масштаб 1 : k → площадь × k²','краска идёт на площадь'],['y = ax²: x × 2 → y × 4','a — подставь точку']],
+ mistakes:[['2 × 10<sup>7</sup> вместо 2,0 × 10<sup>7</sup>','потерян значащий ноль'],['Чётные листы без A0','A0 — тоже чётный: сумма 85/64, а не 21/64'],['Краска через k','краска на площадь: × k², а не × k'],['Тип функции на глаз','покажи: x вырос вдвое — во сколько раз вырос y'],['Наибольшее без x','пиши «наиб. 9 при x = 6»']],
+ gens:{
+  'A1 · Пиксели в стандартном виде':()=>{const v=pick([['α','камеры',5472,3648,2.0],['β','телефона',4032,3024,1.2]]);const P=v[2]*v[3];
+    return{q:`${src(v[0])}Фото с ${v[1]} — ${N(v[2]+' × '+v[3]+' px')}. Сколько всего пикселей в кадре? Запишите в стандартном виде с двумя значащими цифрами.`,
+     fields:[num('всего',P,{unit:'px',show:F(P,0)}),num('a =',v[4],{show:F(v[4],1).includes(',')?F(v[4],1):F(v[4],0)+',0'}),num('n =',7)],
+     hints:[`Перемножь ${v[2]} × ${v[3]}.`,'Две значащие цифры: одна до запятой и одна после. Ноль после запятой тоже пишем.'],
+     sol:[`${v[2]} × ${v[3]} = ${F(P,0)}`,`≈ ${v[4]===2?'2,0':F(v[4],1)} × 10${pw(7)}`]}},
+  'A2 · Форматы A':()=>{const al=Math.random()<.5;
+    return al?{q:`${src('α')}Площадь листа A0 равна 1 м², площадь каждого следующего формата вдвое меньше предыдущего. Найдите площадь листа A7 и сумму площадей нечётных листов A1, A3, A5, A7.`,
+     fields:[num('A7 =',1/128,{tol:5e-5,unit:'м²',show:'1/128'}),num('сумма =',85/128,{tol:5e-4,unit:'м²',show:'85/128'})],
+     hints:['A7 = 1 : 2<sup>7</sup>.','1/2 + 1/8 + 1/32 + 1/128 — приведи к знаменателю 128.'],
+     sol:['A7 = 1/2<sup>7</sup> = 1/128 м²','64/128 + 16/128 + 4/128 + 1/128 = 85/128 м²']}
+    :{q:`${src('β')}Площадь листа A0 равна 1 м², площадь каждого следующего формата вдвое меньше предыдущего. Найдите площадь листа A6 и сумму площадей чётных листов A0, A2, A4, A6.`,
+     fields:[num('A6 =',1/64,{tol:5e-5,unit:'м²',show:'1/64'}),num('сумма =',85/64,{tol:5e-4,unit:'м²',show:'85/64',traps:[[21/64,'Не забудь A0 — он тоже чётный, его площадь 1 м².']]})],
+     hints:['A6 = 1 : 2<sup>6</sup>.','A0 тоже чётный. 1 + 1/4 + 1/16 + 1/64 — приведи к знаменателю 64.'],
+     sol:['A6 = 1/2<sup>6</sup> = 1/64 м²','64/64 + 16/64 + 4/64 + 1/64 = 85/64 м²']}},
+  'A3 · Степени и корни':()=>Math.random()<.5
+    ?{q:`${src('α')}Вычислите: ${N('27'+pw('2/3')+' + <sup>4</sup>√16 × 2'+pw(-1))}`,fields:[num('',10)],
+      hints:['27<sup>2/3</sup>: сначала ∛27, потом в квадрат.','2<sup>−1</sup> = 1/2.'],sol:['27<sup>2/3</sup> = 3<sup>2</sup> = 9','<sup>4</sup>√16 × 2<sup>−1</sup> = 2 × 1/2 = 1','9 + 1 = 10']}
+    :{q:`${src('β')}Вычислите: ${N('8'+pw('2/3')+' + ∛27 × 3'+pw(-1))}`,fields:[num('',5)],
+      hints:['8<sup>2/3</sup>: сначала ∛8, потом в квадрат.','3<sup>−1</sup> = 1/3.'],sol:['8<sup>2/3</sup> = 2<sup>2</sup> = 4','∛27 × 3<sup>−1</sup> = 3 × 1/3 = 1','4 + 1 = 5']},
+  'A4 · Погрешность':()=>{const v=pick([['α',3.47,0.02,0.58],['β',2.63,0.03,1.1]]);
+    return{q:`${src(v[0])}Длина измерена так: ${N(F(v[1])+' ± '+F(v[2])+' м')}. Найдите относительную погрешность (в %, две значащие цифры) и границы настоящего значения.`,
+     fields:[num('δ =',v[3],{tol:v[3]<1?0.0051:0.051,unit:'%'}),num('от',r2(v[1]-v[2],2),{unit:'м'}),num('до',r2(v[1]+v[2],2),{unit:'м'})],
+     hints:[`δ = ${F(v[2])} : ${F(v[1])} × 100 %.`,'Границы: a − Δ и a + Δ.'],
+     sol:[`${F(v[2])} : ${F(v[1])} = ${F(v[2]/v[1],5)} ≈ ${F(v[3])} %`,`${F(v[1]-v[2])} … ${F(v[1]+v[2])} м`]}},
+  'A5 · Масштаб и краска':()=>{const v=pick([['α',20,15],['β',25,12]]);const g=v[2]*v[1]**2;
+    return{q:`${src(v[0])}Макет выполнен в масштабе ${N('1 : '+v[1])}; на его покраску ушло ${N(v[2]+' г')} краски. Сколько краски уйдёт на оригинал (тем же слоем)? Ответ в килограммах.`,
+     fields:[num('',g/1000,{unit:'кг',traps:[[v[2]*v[1]/1000,'Краска и ткань идут на площадь: умножаем на k², а не на k.']]})],hints:['Краска идёт на площадь, а площадь растёт в k² раз.',`k² = ${v[1]}² = ${v[1]**2}.`],
+     sol:[`× ${v[1]}² = × ${v[1]**2}`,`${v[2]} × ${v[1]**2} = ${F(g,0)} г = ${F(g/1000,1)} кг`]}},
+  'A6 · Функция по графику':()=>{const v=pick([['α',0.25,[2,4,8],[1,6],[0,9],[0,18]],['β',0.5,[2,4,6],[1,5],[0,7],[0,20]]]);const a=v[1],f=x=>a*x*x;const pts=v[2].map(x=>[x,f(x)]);const [p,q]=v[3];
+    return{q:`${src(v[0])}На графике одна из функций: y = kx, y = k/x, y = ax², y = ax³. Отмечены точки ${pts.map(t=>'('+t[0]+'; '+F(t[1])+')').join(', ')}. Найдите формулу, наибольшее и наименьшее значения на отрезке [${p}; ${q}]. Функция на этом отрезке возрастает или убывает?`,
+     extra:plot(f,pts,v[4],v[5]),
+     fields:[choice('тип',['y = kx','y = k/x','y = ax²','y = ax³'],'y = ax²'),num('a =',a),num('наиб.',f(q)),num('наим.',f(p)),choice('на отрезке',['возрастает','убывает'],'возрастает')],
+     hints:[`x: 2 → 4 (вдвое), y: ${F(pts[0][1])} → ${F(pts[1][1])}. Во сколько раз вырос y?`,`y вырос в 4 раза → y = ax². Подставь (2; ${F(pts[0][1])}): ${F(pts[0][1])} = a × 4.`,'При x &gt; 0 парабола растёт: наименьшее — на левом конце, наибольшее — на правом.'],
+     sol:[`x × 2 → y × 4 ⇒ y = ax²; a = ${F(pts[0][1])} : 4 = ${F(a)}`,`проверка: ${F(a)} × ${pts[2][0]}² = ${F(pts[2][1])} ✓`,`наим. ${F(f(p))} при x = ${p}; наиб. ${F(a)} × ${q}² = ${F(f(q))} при x = ${q}`,'возрастает']}}
+ }},
+{id:'midB',wk:'н7',title:'Мидтерм: часть B',lead:'Кейсы B1–B5 всех департаментов: настоящие из вариантов α и β и такие же по мотивам, с другими числами. Все нужные данные — в условии каждой задачи.',
+ formulas:[['натура = эскиз × k (масштаб 1 : k)','1 м = 100 см'],['S = a × b; δ<sub>S</sub> = Δ/a + Δ/b','ΔS = S × δ<sub>S</sub>, округляем вверх'],['границы: (a − Δ)(b − Δ) … (a + Δ)(b + Δ)',''],['покупаем по S + ΔS',''],['размеры × k → край × k, площадь × k²',''],['пиксели = см : 2,54 × DPI','округляем вверх']],
+ mistakes:[['Δ округлили вниз','0,035 → 0,04, а не 0,03'],['Стоимость по S','закупаем по наибольшей площади S + ΔS'],['Площадь через k','площадь растёт в k², а не в k раз'],['Пиксели по правилам округления','пикселей должно хватить: только вверх'],['Сантиметры вместо метров','B1 — ответ в метрах']],
+ gens:{
+  'B1 · Размеры по эскизу':(pre)=>{const [v,w]=pre||mb();
+    return{q:`${src(v.s,w.c)}${w.title}. Дизайнер прислал эскиз ${w.gen} в масштабе ${N('1 : '+v.k)}. На эскизе ${w.nom} — прямоугольник ${N(v.s1+' × '+v.s2+' см')}. Найдите размеры ${w.gen} в метрах.`,extra:expl(w),
+     fields:[num('длина',v.a,{unit:'м'}),num('ширина',v.b,{unit:'м'})],hints:[`Каждую сторону умножь на ${v.k}.`,'Переведи сантиметры в метры: раздели на 100.'],
+     sol:[`${v.s1} × ${v.k} = ${v.s1*v.k} см = ${F(v.a)} м`,`${v.s2} × ${v.k} = ${v.s2*v.k} см = ${F(v.b)} м`]}},
+  'B2 · Площадь S ± Δ':(pre)=>{const [v,w]=pre||mb();const S=v.a*v.b,d=0.01/v.a+0.01/v.b;
+    return{q:`${src(v.s,w.c)}${w.title}: размеры ${w.gen} — ${N(fx(v.a)+' × '+fx(v.b)+' м')}. Мастер перемерил ${w.acc} рулеткой; каждая сторона известна с погрешностью Δ = 0,01 м. Найдите площадь ${w.area} и запишите её в виде S ± Δ. Δ округлите вверх до одной значащей цифры.`,
+     fields:[num('S =',S,{unit:'м²'}),num('Δ =',v.dS,{unit:'м²',exact:S*d,up:true})],hints:[`δ = 0,01 : ${fx(v.a)} + 0,01 : ${fx(v.b)}.`,'ΔS = S × δ, округли вверх до одной значащей цифры. Проверить можно границами: (a − 0,01)(b − 0,01) и (a + 0,01)(b + 0,01).'],
+     sol:[`S = ${fx(v.a)} × ${fx(v.b)} = ${fx(S)} м²`,`δ = ${F(0.01/v.a*100)} % + ${F(0.01/v.b*100)} % ≈ ${F(d*100)} %`,`ΔS = ${fx(S)} × ${F(d,4)} ≈ ${F(S*d,3)} → ${F(v.dS)}`,`границы: ${F((v.a-0.01)*(v.b-0.01),3)} … ${F((v.a+0.01)*(v.b+0.01),3)} → ${fx(S)} ± ${F(v.dS)} м²`]}},
+  'B3 · Стоимость материала':(pre)=>{const [v,w]=pre||mb();const S=v.a*v.b,top=r2(S+v.dS,2);
+    return{q:`${src(v.s,w.c)}${w.title}. ${w.mat} стоит ${N(v.price+' сом за м²')}. Площадь ${w.area} — ${N(fx(S)+' ± '+F(v.dS)+' м²')}. Сколько стоит ${w.matS} на ${w.acc}, если закупать по наибольшему возможному значению площади?`,extra:expl(w),
+     fields:[num('',r2(top*v.price,2),{tol:v.s==='β'?2.01:0.01,unit:'сом',show:F(top*v.price,2),traps:[[S*v.price,'Закупаем по наибольшей площади: S + ΔS, а не по S.']]})],hints:[`Наибольшая площадь: ${fx(S)} + ${F(v.dS)}.`,`Умножь на ${v.price}.`],
+     sol:[`${fx(S)} + ${F(v.dS)} = ${fx(top)} м²`,`${F(top)} × ${v.price} = ${F(top*v.price,2)} сом`]}},
+  'B4 · Увеличение в k раз':(pre)=>{const [v,w]=pre||mb();const P=2*(v.a+v.b),S=v.a*v.b;
+    return{q:`${src(v.s,w.c)}${w.title}: размеры ${w.gen} — ${N(fx(v.a)+' × '+fx(v.b)+' м')}. Заказчик попросил ${w.acc} той же формы, но все размеры увеличить в ${N(F(v.kk)+' раза')}. Во сколько раз вырастет длина ${w.edgeG}? Во сколько раз — площадь ${w.matG}? Найдите длину ${w.edgeG} и площадь ${w.matG} для ${w.newg}.`,extra:expl(w),
+     fields:[num('край в',v.kk,{unit:'раза'}),num('площадь в',v.kk**2,{unit:'раза'}),num('длина',P*v.kk,{unit:'м',traps:[[P,'Это длина для старого изделия — умножь на k.'],[P*v.kk**2,'Край — это длина: растёт в k раз, а не в k².']]}),num('площадь',S*v.kk**2,{tol:0.0051,unit:'м²',show:F(S*v.kk**2,3),traps:[[S*v.kk,'Площадь растёт в k² раз, а не в k.'],[S,'Это площадь старого изделия — умножь на k².']]})],
+     hints:[`${w.edge[0].toUpperCase()+w.edge.slice(1)} идёт по краю — это длина: растёт в k раз. Площадь — в k² раз.`,`Периметр сейчас: 2 × (${fx(v.a)} + ${fx(v.b)}).`],
+     sol:[`край × ${F(v.kk)}, площадь × ${F(v.kk)}² = × ${F(v.kk**2)}`,`P = 2 × (${fx(v.a)} + ${fx(v.b)}) = ${F(P,1)} м → ${F(P,1)} × ${F(v.kk)} = ${F(P*v.kk,1)} м`,`S = ${F(S)} м² → ${F(S)} × ${F(v.kk**2)} = ${F(S*v.kk**2,3)} м²`]}},
+  'B5 · Сканирование, DPI':(pre)=>{const [v,w]=pre||mb();const px=v.s1/2.54*v.dpi;
+    return{q:`${src(v.s,w.c)}${w.title}. Эскиз ${w.gen} — прямоугольник ${N(v.s1+' × '+v.s2+' см')}. Эскиз сканируют с разрешением ${N(v.dpi+' DPI')}. Сколько пикселей по длинной стороне эскиза? Округлите в нужную сторону.`,
+     fields:[num('',Math.ceil(px),{unit:'px',exact:px,up:true,traps:[[v.s1*v.dpi,'DPI — точек на дюйм. Сначала переведи сантиметры в дюймы: : 2,54.']]})],hints:['DPI — точек на дюйм. 1 дюйм = 2,54 см.',`${v.s1} : 2,54 × ${v.dpi}. Пикселей должно хватить — округляй вверх.`],
+     sol:[`${v.s1} : 2,54 = ${F(v.s1/2.54,3)} дюйма`,`${F(v.s1/2.54,3)} × ${v.dpi} = ${F(px,2)} → ${Math.ceil(px)} px`]}}
+ }},
+{id:'pct',wk:'н8',title:'Процент как множитель',lead:'Проценты не складываются — они перемножаются.',
+ formulas:[['увеличить на p %:   × (1 + p/100)','+15 % → × 1,15'],['уменьшить на p %:   × (1 − p/100)','−20 % → × 0,8'],['несколько изменений подряд — перемножаем множители','скидка 20 %, потом 10 % → 0,8 × 0,9 = 0,72 → −28 %'],['сколько было: было = стало : множитель',''],['процентные пункты: 5 % → 8 % — это +3 п. п.','и +60 % от прежней доли']],
+ mistakes:[['20 % + 10 % = 30 %','последовательные скидки дают 28 %, а не 30 %'],['Обратная задача вычитанием','9 000 после скидки 10 % — это 9 000 : 0,9 = 10 000, а не 9 000 + 900'],['+20 %, потом −20 %','это −4 %, а не 0']],
+ gens:{
+  'Две скидки подряд':()=>{const a=pick([10,15,20,25,30]),b=pick([5,10,15,20]);const tot=(1-(1-a/100)*(1-b/100))*100;return{q:`На товар сделали скидку ${N(a+' %')}, потом на новую цену — ещё скидку ${N(b+' %')}. На сколько процентов итоговая цена ниже исходной? Округлите до целых, десятых или сотых — как удобно.`,fields:[num('',tot,{flex:true,unit:'%',traps:[[a+b,`Скидки не складываются: множители перемножаются — ${F(1-a/100,2)} × ${F(1-b/100,2)}.`]]})],hints:[`Множители: ${F(1-a/100,2)} и ${F(1-b/100,2)}.`,'Перемножь их. Общая скидка = 1 − произведение.'],sol:[`${F(1-a/100,2)} × ${F(1-b/100,2)} = ${F((1-a/100)*(1-b/100),4)}`,`скидка = ${F(tot,2)} %`]}},
+  'Сколько было':()=>{const p=pick([4,10,12,15,20,25]),P=ri(4,30)*1000;const kind=pick(['скидки','налога']);const S=P*(1-p/100);return{q:`После вычета ${kind} ${N(p+' %')} осталось ${N(F(S,0)+' сом')}. Какой была сумма до вычета ${kind}?`,fields:[num('',P,{tol:0.6,unit:'сом',traps:[[S*(1+p/100),'Обратная задача решается делением: S : (1 − p), а не прибавлением процента.'],[S+p/100*S,'Обратная задача решается делением: S : (1 − p).']]})],hints:[`Осталось ${100-p} % — множитель ${F(1-p/100,2)}.`,'Было = осталось : множитель.'],sol:[`${F(S,0)} : ${F(1-p/100,2)} = ${F(P,0)} сом`]}},
+  'Пункты и проценты':()=>{const a=ri(2,12),b=a+ri(1,8);return{q:`Доля брака в партии выросла с ${N(a+' %')} до ${N(b+' %')}.<br>1) На сколько процентных пунктов выросла доля брака?<br>2) На сколько процентов новая доля брака больше прежней? Округлите до целых, десятых или сотых — как удобно.`,fields:[num('1) на',b-a,{unit:'п. п.',traps:[[(b-a)/a*100,'Это проценты. Пункты — простая разность долей.']]}),num('2) на',(b-a)/a*100,{flex:true,unit:'%',traps:[[b-a,'Это процентные пункты. Проценты — разность, делённая на прежнюю долю, × 100 %.'],[(b-a)/b*100,'Делим на прежнюю долю, а не на новую.']]})],hints:['Пункты — простая разность долей.','Проценты — разность, делённая на прежнюю долю, × 100 %.'],sol:[`${b} − ${a} = ${b-a} п. п.`,`${b-a} : ${a} × 100 % = ${F((b-a)/a*100,2)} %`]}},
+  'Вверх и вниз':()=>{const p=pick([10,20,25,30,50]);const ch=((1+p/100)*(1-p/100)-1)*100;return{q:`Цену подняли на ${N(p+' %')}, потом снизили на ${N(p+' %')}. На сколько процентов итоговая цена отличается от исходной? Если цена уменьшилась, пишите ответ со знаком минус. Округлите до целых, десятых или сотых — как удобно.`,fields:[num('',ch,{flex:true,unit:'%',traps:[[0,'+p % и −p % не компенсируют друг друга: перемножь множители (1 + p)(1 − p).']]})],hints:[`Множители: ${F(1+p/100,2)} и ${F(1-p/100,2)}.`,'Перемножь и сравни с 1.'],sol:[`${F(1+p/100,2)} × ${F(1-p/100,2)} = ${F((1+p/100)*(1-p/100),4)} → ${F(ch,2)} %`]}}
+ }},
+{id:'smeta',wk:'н8',title:'Смета для заказчика',lead:'Себестоимость → наценка → комиссия → налог → на руки.',
+ formulas:[['себестоимость = материалы + часы × ставка',''],['цена клиенту = себестоимость × (1 + наценка)',''],['на руки = цена × (1 − комиссия) × (1 − налог)',''],['прибыль = на руки − себестоимость',''],['наценка н % → доля в цене н : (100 + н)','40 % наценки = 28,6 % цены'],['доля в цене д % → наценка д : (100 − д)',''],['нужно на руки X → цена = X : ((1 − комиссия) × (1 − налог))','округляем вверх']],
+ mistakes:[['Наценку считают от цены продажи','наценка — от себестоимости'],['Комиссию и налог складывают','налог — с остатка после комиссии: множители перемножаем'],['Прибыль в % от цены','если спрашивают «от себестоимости» — делим на себестоимость']],
+ gens:{
+  'Цепочка сметы':()=>{const M=ri(15,45)*100,h=ri(4,10),r=pick([500,600,700,800]),m=pick([20,25,30,40]),t=4;const C=M+h*r,P=C*(1+m/100),H=P*(1-t/100),pr=H-C;
+    return{q:`Материалы — ${N(F(M,0)+' сом')}, работа — ${N(h+' ч')} по ${N(r+' сом')}. Наценка ${N(m+' %')} к себестоимости, налог ${N(t+' %')} от цены.<br>1) Какую цену назвать клиенту?<br>2) Сколько останется на руки после налога?<br>3) Какова прибыль (на руки − себестоимость)?<br>4) Сколько процентов от себестоимости составляет прибыль? Округлите до целых, десятых или сотых — как удобно.`,
+     fields:[num('1) цена',r2(P,2),{tol:1.01,unit:'сом'}),num('2) на руки',r2(H,2),{tol:1.01,unit:'сом',traps:[[C*(1-t/100),'Налог берётся от цены клиенту, а не от себестоимости.']]}),num('3) прибыль',r2(pr,2),{tol:1.01,unit:'сом',traps:[[P-C,'Прибыль считаем от суммы на руки — после налога.']]}),num('4) прибыль',pr/C*100,{flex:true,unit:'% от себестоимости',traps:[[pr/P*100,'Процент — от себестоимости, а не от цены.'],[m,'Это наценка. Прибыль меньше: из цены ещё вычли налог.']]})],
+     hints:[`Себестоимость = ${F(M,0)} + ${h} × ${r} = ${F(C,0)}.`,`Цена × ${F(1+m/100,2)}; на руки × 0,96; прибыль = на руки − себестоимость.`],
+     sol:[`себестоимость ${F(C,0)}`,`цена ${F(C,0)} × ${F(1+m/100,2)} = ${F(P,2)}`,`на руки ${F(P,2)} × 0,96 = ${F(H,2)}`,`прибыль ${F(pr,2)} = ${F(pr/C*100,2)} % себестоимости`]}},
+  'Наценка → доля в цене':()=>{const n=pick([20,25,30,40,50,60,100]);return{q:`Перекупщик покупает вещь и продаёт её с наценкой ${N(n+' %')} к цене покупки. Сколько процентов от цены продажи составляет его заработок? Округлите до целых, десятых или сотых — как удобно.`,fields:[num('',n/(100+n)*100,{flex:true,unit:'%',traps:[[n,'Наценка считается от цены покупки, а доля — от цены продажи.']]})],hints:['Возьми себестоимость 100. Какой будет цена?',`Заработок ${n} из ${100+n}.`],sol:[`${n} : ${100+n} × 100 % = ${F(n/(100+n)*100,2)} %`]}},
+  'Доля в цене → наценка':()=>{const d=pick([10,15,20,25,30,40]);return{q:`Галерея забирает ${N(d+' %')} от цены продажи, остальное получает автор. На сколько процентов цена продажи больше суммы, которую получает автор? Округлите до целых, десятых или сотых — как удобно.`,fields:[num('',d/(100-d)*100,{flex:true,unit:'%',traps:[[d,'Доля считается от цены продажи, а наценка — от суммы автора.']]})],hints:['Цена продажи 100: галерея — d, вам — остальное.',`Наценка = ${d} : ${100-d}.`],sol:[`${d} : ${100-d} × 100 % = ${F(d/(100-d)*100,2)} %`]}},
+  'Сколько выставить':()=>{const X=ri(5,40)*1000,c=pick([5,8,10,12,15]),t=4;const P=X/((1-c/100)*(1-t/100));return{q:`Нужно получить на руки не меньше ${N(F(X,0)+' сом')}. Площадка забирает ${N(c+' %')} от цены, потом налог ${N(t+' %')} с остатка. Какую цену поставить? Округлите вверх до сома.`,fields:[num('',Math.ceil(P-1e-9),{tol:0.6,unit:'сом',exact:P,up:true,traps:[[X*(1+c/100)*(1+t/100),'Комиссия и налог берутся от цены, а не от суммы на руки: делим на (1 − c)(1 − t).'],[X/(1-(c+t)/100),'Налог берётся с остатка: множители перемножаем, а не проценты складываем.']]})],hints:[`Множители: ${F(1-c/100,2)} и 0,96.`,'Цена = на руки : (произведение множителей), вверх.'],sol:[`${F(X,0)} : (${F(1-c/100,2)} × 0,96) = ${F(X,0)} : ${F((1-c/100)*0.96,4)} = ${F(P,2)} → ${F(Math.ceil(P-1e-9),0)} сом`]}}
+ }},
+{id:'compound',wk:'н9',title:'Сложный процент и рассрочка',lead:'Процент каждый раз — от того, что есть сейчас. Рассрочка или копить — зависит от того, как быстро дорожает вещь.',
+ formulas:[['сложный процент:   S = S₀ × (1 + r)<sup>n</sup>','r — в долях за один период'],['простой процент:   S = S₀ + S₀ × r × n',''],['уменьшение:   S = S₀ × (1 − r)<sup>n</sup>','−18 % в год → × 0,82'],['сколько было:   S₀ = S : (1 + r)<sup>n</sup>',''],['правило 72:   удвоение ≈ 72 : (процент за период)','это оценка'],['переплата = платёж × число платежей − цена','процент — от цены'],['калькулятор: 1 200 × 1,08 = = = …','каждое «=» — ещё один период']],
+ mistakes:[['10 % × 3 = 30 %','процент каждый раз от новой суммы: 1,1<sup>3</sup> = 1,331'],['Период не тот','ставка в месяц — n в месяцах'],['Переплата в % от итога','процент считаем от цены'],['Сравнение с ценой сейчас','копить — сравниваем накопленное с ценой в будущем']],
+ gens:{
+  'Вклад: сложный и простой':()=>{const S0=ri(4,20)*5000,r=pick([8,10,12,14,15]),n=pick([2,3,4,5]);const S=S0*(1+r/100)**n,Sp=S0*(1+r/100*n);return{q:`Вклад ${N(F(S0,0)+' сом')} под ${N(r+' %')} годовых, проценты каждый год прибавляются к вкладу.<br>1) Сколько будет на вкладе через ${pl(n,YRS)}?<br>2) Сколько было бы через ${pl(n,YRS)}, если бы проценты каждый год начислялись только на первоначальные ${N(F(S0,0)+' сом')} (простой процент)?<br>Ответы до сома.`,
+     fields:[num('1) сложный',Math.round(S),{tol:1.01,unit:'сом',traps:[[Sp,'Это простой процент. Здесь проценты прибавляются к вкладу: × (1 + r)<sup>n</sup>.']]}),num('2) простой',r2(Sp,2),{tol:0.6,unit:'сом',traps:[[S,'Это сложный процент. Простой: S<sub>0</sub> × (1 + r × n).']]})],hints:[`Множитель 1 + ${F(r/100,2)} = ${F(1+r/100,2)}, в степени ${n}.`,`Простой: ${F(S0,0)} + ${n} × ${F(S0*r/100,0)}.`],sol:[`${F(S0,0)} × ${F(1+r/100,2)}${pw(n)} = ${F(S0,0)} × ${F((1+r/100)**n,6)} ≈ ${F(S,0)}`,`простой: ${F(Sp,0)}`]}},
+  'Удвоение: правило 72':()=>{const r=pick([3,4,6,8,9,12]);let n=1;while((1+r/100)**n<2)n++;return{q:`Сумма растёт на ${N(r+' %')} за период.<br>1) Оцените по правилу 72: примерно за сколько периодов сумма удвоится? Ответ до десятых.<br>2) Посчитайте точно: через сколько полных периодов сумма впервые станет больше удвоенной?`,fields:[num('1) примерно',r2(72/r,1),{tol:0.051,unit:'периодов'}),num('2) точно',n,{unit:'периодов',traps:[[n-1,'На этом периоде сумма ещё не больше удвоенной — проверь следующий.']]})],hints:[`Оценка: 72 : ${r}.`,`Считай ${F(1+r/100,2)}<sup>n</sup> по шагам, пока не станет больше 2.`],sol:[`72 : ${r} = ${F(72/r,2)}`,`${F(1+r/100,2)}${pw(n-1)} ≈ ${F((1+r/100)**(n-1),3)}; ${F(1+r/100,2)}${pw(n)} ≈ ${F((1+r/100)**n,3)} → ${n}`]}},
+  'Переплата по рассрочке':()=>{const price=ri(6,24)*5000,k=pick([6,10,12]);const pay=Math.round(price*(1+pick([0.06,0.08,0.1,0.12,0.15,0.2]))/k/100)*100;const T=pay*k;return{q:`Вещь стоит ${N(F(price,0)+' сом')}. В рассрочку — ${N(k+' платежей по '+F(pay,0)+' сом')}. <br>1) Сколько всего вы заплатите?<br>2) Какова переплата в сомах?<br>3) Сколько процентов от цены вещи составляет переплата? Округлите до целых, десятых или сотых — как удобно.`,
+     fields:[num('1) итого',T,{unit:'сом'}),num('2) переплата',T-price,{unit:'сом'}),num('3) переплата',(T-price)/price*100,{flex:true,unit:'% от цены',traps:[[(T-price)/T*100,'Процент переплаты — от цены вещи, а не от итоговой суммы.']]})],hints:[`Итого = ${k} × ${F(pay,0)}.`,'Переплата = итого − цена; процент — от цены.'],sol:[`${k} × ${F(pay,0)} = ${F(T,0)}`,`${F(T,0)} − ${F(price,0)} = ${F(T-price,0)}`,`${F(T-price,0)} : ${F(price,0)} = ${F((T-price)/price*100,2)} %`]}},
+  'Оборудование дешевеет':()=>{const P=ri(4,30)*10000,p=pick([10,15,18,20,25]),n=pick([2,3,4]);const S=P*(1-p/100)**n;return{q:`Оборудование куплено за ${N(F(P,0)+' сом')} и дешевеет на ${N(p+' %')} в год от своей цены на начало года. Сколько оно будет стоить через ${pl(n,YRS)} (до сома)?`,fields:[num('',Math.round(S),{tol:1.01,unit:'сом',traps:[[P*(1-p*n/100),'Каждый год цена падает от новой цены: × (1 − p)<sup>n</sup>.']]})],hints:[`Множитель 1 − ${F(p/100,2)} = ${F(1-p/100,2)}.`,`В степени ${n}.`],sol:[`${F(P,0)} × ${F(1-p/100,2)}${pw(n)} = ${F(S,1)}`]}},
+  'Сколько стоит сейчас':()=>{const S0=ri(10,40)*10000,r=pick([5,8,9,10,12]),n=pick([2,3]);const S=Math.round(S0*(1+r/100)**n);return{q:`Цены растут на ${N(r+' %')} в год. Через ${pl(n,YRS)} та же смета будет стоить ${N(F(S,0)+' сом')}. Сколько она стоит сейчас? Округлите до сотни сом.`,fields:[num('',S0,{tol:60,unit:'сом',traps:[[S*(1-r/100)**n,'Обратная задача — деление на (1 + r)<sup>n</sup>, а не умножение на (1 − r)<sup>n</sup>.'],[S/(1+r*n/100),'Цены растут по сложному проценту: делим на (1 + r)<sup>n</sup>.']]})],hints:['Сейчас = будущее : (1 + r)<sup>n</sup>.',`${F(1+r/100,2)}${pw(n)} = ${F((1+r/100)**n,4)}.`],sol:[`${F(S,0)} : ${F((1+r/100)**n,4)} ≈ ${F(S/(1+r/100)**n,0)} сом`]}},
+  'Рассрочка или копить':()=>{const P=ri(4,12)*5000,k=pick([4,6,12]);const ov=pick([0.06,0.08,0.1,0.16]);const pay=Math.round(P*(1+ov)/k/100)*100;const T=pay*k;const r=pick([0.5,1,1.5,2]);const fut=P*(1+r/100)**k;const best=fut>T?'рассрочка':'копить';
+    return{q:`Вещь стоит ${N(F(P,0)+' сом')}. Рассрочка: ${N(k+' × '+F(pay,0)+' = '+F(T,0)+' сом')}. Или копить те же ${N(F(pay,0)+' сом')} в месяц и купить через ${pl(k,MON)}. Цена растёт на ${N(F(r,1)+' %')} в месяц. <br>1) Сколько будет стоить вещь через ${pl(k,MON)}? Ответ до сома.<br>2) Что выгоднее: рассрочка или копить?`,
+     fields:[num('1) цена потом',Math.round(fut),{tol:1.51,unit:'сом'}),choice('2) выгоднее',['рассрочка','копить'],best)],hints:[`Цена через ${k} мес. = ${F(P,0)} × ${F(1+r/100,3)}${pw(k)}.`,`Сравни с накопленным: ${F(T,0)}.`],sol:[`${F(P,0)} × ${F(1+r/100,3)}${pw(k)} ≈ ${F(fut,0)}`,`${F(fut,0)} ${fut>T?'>':'≤'} ${F(T,0)} → ${best}`]}}
+ }}
+];
+
+/* ---------- materials (Google Drive, anyone with link) ---------- */
+const G=i=>`https://docs.google.com/presentation/d/${i}/edit?usp=sharing`, D=i=>`https://drive.google.com/file/d/${i}/view?usp=sharing`;
+const MAT={
+ std:[['Неделя 2, занятие 1','Презентация','Порядок величины',G('1l0FzLH43PZrYkaEh_dd7FaaNg-WJtlNwhTsD7bDfk_4')],['Неделя 2, занятие 1','Рабочий лист','',D('1aZeSaJEAMbrE7H8xcne2Bowf5Ko6SrLz')]],
+ prog:[['Неделя 2, занятие 2','Презентация','Лестница к √2',G('1xmxk726ds5Vbq2MPS43kU1sMpR4pnWW6UU88N7CErKE')],['Неделя 2, занятие 2','Рабочий лист','',D('1OaJMsjQOlZ1V_grlnPshBFZtBcbX8rza')]],
+ err:[['Неделя 3, занятие 1','Презентация','Плюс-минус миллиметр',D('1obyIL6yetrst4lChFYH-EeEFl1Cud5hd')],['Неделя 3, занятие 2','Презентация','Хватит ли точности',D('1dueFxWmqyNXVjRE1M8G9AwA-c6zyfD9d')],['Неделя 3, занятие 2','Рабочие листы групп','',D('10bwAP79utFrLKgpCUlztqW1bKRuZ06GG')]],
+ pow:[['Неделя 4, занятие 1','Презентация','Степени и корни',D('1UKAClhu9IjJG6DfMv6DWWe2_AQHP2hSh')]],
+ scale:[['Неделя 4, занятие 2','Презентация','Одна прямая пропорция',D('10qGsq7g_gTRjJNr0O4uWlMbtLBP8bUJj')]],
+ sim:[['Неделя 5, занятие 1','Презентация','Площадь — k², объём — k³',D('1EVQDH7p5kIJz2zHKvS-NB27KuoTCgg4e')],['Неделя 5, занятие 2','Презентация','Смета при масштабировании',G('1a7eIl_9sYoUXayB__VcFYYiBuz742jIrtO1LLOHTAn0')]],
+ comp:[['Неделя 6, занятие 1','Презентация','Золотое сечение и модульная сетка',G('1oUSfHGxgJLrsFa2itAMp81Y4p5YPJ8XZiMAIw0jH1Cc')],['Неделя 6, занятие 1','Рабочий лист','Сетка',D('1aAVkTVbtZzXh3LWG3kP1lXrkTb3-UKnu')]],
+ func:[['Неделя 6, занятие 2','Презентация','Функция и чтение графика',G('1S6mBFv4SfoXiSEvrA4zWvHy1P3n-qA3viNmLu6I5Wf4')],['Неделя 6, занятие 2','Раздаточный','12 графиков «Узнай функцию»',D('16X0QvJagtDeTmJ2hLU6y0EEUl7MeUMUU')],['Неделя 6, занятие 2','Рабочий лист','Функции',D('1G4tyY_3MfvQgw4sC9Zks6tNmZ0bFmOaS')],['Неделя 7, занятие 1','Презентация','Функция по графику',G('1poqD5U7Lrf-iMPVeQ7hH2js2V-Nf824Vqf0p2Lv_i2s')]],
+ pct:[['Неделя 8, занятие 1','Презентация','Процент как множитель',G('1Yxz32fk1UFJI3-bdNLOJmM_UvTAXNuI8lHOHJLFLkwk')],['Неделя 8, занятие 1','Рабочий лист','',D('1wnUUOAwH6r4KGVGKMDN8A_LxoXw76HJP')]],
+ smeta:[['Неделя 8, занятие 2','Презентация','Смета для заказчика',G('1wy9GB_x5XgyaPL4ljucyBW_-dxsn-h7Q4GdTgI3khrM')],['Неделя 8, занятие 2','Assignment 8','Смета для заказчика',D('13IfTGsBNwxrjoeGjxmmZAs459bsclVnM')]],
+ compound:[['Неделя 9, занятие 1','Презентация','Сложный процент',G('1zKJ9hifLsqPRY19vj4DyzVvBdrzagB5yPDjIyQ5nYCI')],['Неделя 9, занятие 1','Рабочий лист','',D('1LrGam_txhckEGziDuCgDAUA1mpB9jpqa')],['Неделя 9, занятие 2','Презентация','Рассрочка или копить',G('1GzwnTi4CusGv3T9sydTiHNDJ7ljaEzD7ylrqRD5XfU4')],['Неделя 9, занятие 2','Рабочий лист','',D('1o7p5SL0qEEbwp7Yl960ROCRJiKmm19MB')],['Неделя 9','Assignment 9','Сложный процент',D('1O_sg2INW96jSWkg8SzklprprgoiVXsi5')]],
+};
+function matHTML(id){const L=MAT[id];if(!L)return'';const by=[];L.forEach(([l,k,t,u])=>{let g=by.find(x=>x[0]===l);if(!g)by.push(g=[l,[]]);g[1].push([k,t,u])});
+ return `<div class="panel"><h3>Материалы занятий</h3><div class="mat">${by.map(([l,it])=>`<div class="matrow"><span class="les">${l}</span><span class="links">${it.map(([k,t,u])=>`<a class="mlink" href="${u}" target="_blank" rel="noopener">${t?`<span class="k">${k}</span>${t}`:k}</a>`).join('')}</span></div>`).join('')}</div></div>`}
+
+/* ---------- midterm: generated variants «по мотивам» ---------- */
+const genV=()=>{let k,s1,s2,a,b;do{k=pick([10,20,25,30,40,50]);s1=ri(6,12);s2=ri(4,s1-1);a=s1*k/100;b=s2*k/100}while((s1*k)%10||(s2*k)%10||a<1||a>4.5||b<0.6);
+  const S=r2(a*b,4),d=0.01/a+0.01/b;return{s:null,k,s1,s2,a,b,dS:ceil1(S*d),price:pick([300,350,400,450,500,600,700,800]),kk:pick([1.5,2,2.5,3]),dpi:pick([150,300,600])}};
+const GM={
+ 'A1 · Пиксели в стандартном виде':()=>{const [W,H,what]=pick([[6000,4000,'камеры'],[4000,3000,'телефона'],[7952,5304,'камеры'],[3840,2160,'видеокамеры (кадр 4K)'],[1920,1080,'видео Full HD'],[4608,3456,'телефона'],[5184,3456,'камеры'],[2560,1440,'монитора (скриншот)'],[6720,4480,'камеры'],[8192,5464,'камеры'],[3264,2448,'планшета'],[4096,2160,'кинокамеры (кадр DCI 4K)']]);
+   const P=W*H,n=Math.floor(Math.log10(P)),a=r2(sig2(P)/10**n,1);const as=F(a,1).includes(',')?F(a,1):F(a,0)+',0';
+   return{q:`${src()}Кадр с ${what} — ${N(W+' × '+H+' px')}. Сколько всего пикселей в кадре? Запишите в стандартном виде с двумя значащими цифрами.`,
+    fields:[num('всего',P,{unit:'px',show:F(P,0)}),num('a =',a,{show:as}),num('n =',n)],
+    hints:[`Перемножь ${W} × ${H}.`,'Две значащие цифры: одна до запятой и одна после. Ноль после запятой тоже пишем.'],sol:[`${W} × ${H} = ${F(P,0)}`,`≈ ${as} × 10${pw(n)}`]}},
+ 'A2 · Форматы A':()=>{const n=ri(4,8),odd=n%2===1;const ks=[];for(let k=odd?1:0;k<=n;k+=2)ks.push(k);
+   const D=2**Math.max(...ks),num_=ks.reduce((s,k)=>s+D/2**k,0);const list=ks.map(k=>'A'+k).join(', ');
+   return{q:`${src()}Площадь листа A0 равна 1 м², площадь каждого следующего формата вдвое меньше предыдущего. Найдите площадь листа A${n} и сумму площадей листов ${list}.`,
+    fields:[num(`A${n} =`,1/2**n,{tol:Math.min(5e-5,0.3/2**n),unit:'м²',show:'1/'+2**n}),num('сумма =',num_/D,{tol:5e-4,unit:'м²',show:num_+'/'+D,traps:odd?[]:[[(num_-D)/D,'Не забудь A0 — он тоже чётный, его площадь 1 м².']]})],
+    hints:[`A${n} = 1 : 2${pw(n)}.`,`Приведи все дроби к знаменателю ${D}.`],
+    sol:[`A${n} = 1/2${pw(n)} = 1/${2**n} м²`,ks.map(k=>`${D/2**k}/${D}`).join(' + ')+` = ${num_}/${D} м²`]}},
+ 'A3 · Степени и корни':()=>{const [b,n,m]=pick([[2,3,2],[3,3,2],[4,3,2],[5,3,2],[2,2,3],[3,2,3],[4,2,3],[5,2,3],[2,4,3],[2,3,4],[3,4,3]]);const A=b**n,t1=b**m;
+   const [R,r,x]=pick([[3,3,27],[2,4,16],[6,2,36],[4,3,64],[3,4,81],[7,2,49],[5,3,125],[2,5,32],[10,2,100]]);const dd=pick([...[2,3,4,5,6,7,10].filter(v=>R%v===0),R]);const t2=R/dd;
+   const rt=r===2?'√':r===3?'∛':`<sup>${r}</sup>√`;
+   return{q:`${src()}Вычислите: ${N(A+pw(m+'/'+n)+' + '+rt+x+' × '+dd+pw(-1))}`,fields:[num('',t1+t2)],
+    hints:[`${A}${pw(m+'/'+n)}: сначала корень степени ${n} из ${A}, потом в степень ${m}.`,`${dd}${pw(-1)} = 1/${dd}.`],
+    sol:[`${A}${pw(m+'/'+n)} = ${b}${pw(m)} = ${t1}`,`${rt}${x} × ${dd}${pw(-1)} = ${R} × 1/${dd} = ${F(t2)}`,`${t1} + ${F(t2)} = ${F(t1+t2)}`]}},
+ 'A4 · Погрешность':()=>{const a=ri(120,499)/100,D=pick([0.01,0.02,0.03,0.05]);const dl=D/a*100,v=sig2(dl);const tol=10**(Math.floor(Math.log10(v))-1)/2+1e-9;
+   return{q:`${src()}Длина измерена так: ${N(fx(a)+' ± '+F(D)+' м')}. Найдите относительную погрешность (в %, две значащие цифры) и границы настоящего значения.`,
+    fields:[num('δ =',v,{tol,unit:'%'}),num('от',r2(a-D,2),{unit:'м',show:fx(r2(a-D,2))}),num('до',r2(a+D,2),{unit:'м',show:fx(r2(a+D,2))})],
+    hints:[`δ = ${F(D)} : ${fx(a)} × 100 %.`,'Границы: a − Δ и a + Δ.'],sol:[`${F(D)} : ${fx(a)} = ${F(D/a,5)} ≈ ${F(v,3)} %`,`${fx(r2(a-D,2))} … ${fx(r2(a+D,2))} м`]}},
+ 'A5 · Масштаб и краска':()=>{const k=pick([5,10,15,20,25,30,40,50]),g=pick([2,3,4,5,6,8,10,12,15,20]);const tot=g*k*k;const what=pick(['краски','лака','грунта','позолоты']);
+   return{q:`${src()}Макет выполнен в масштабе ${N('1 : '+k)}; на его покрытие ушло ${N(g+' г')} ${what}. Сколько ${what} уйдёт на оригинал (тем же слоем)? Ответ в килограммах.`,
+    fields:[num('',tot/1000,{unit:'кг',traps:[[g*k/1000,'Краска и ткань идут на площадь: умножаем на k², а не на k.']]})],hints:['Покрытие идёт на площадь, а площадь растёт в k² раз.',`k² = ${k}² = ${k*k}.`],
+    sol:[`× ${k}² = × ${k*k}`,`${g} × ${k*k} = ${F(tot,0)} г = ${F(tot/1000,3)} кг`]}},
+ 'A6 · Функция по графику':()=>{const t=pick(['kx','k/x','ax²','ax²','ax³']);let c,xs,f,lab,cl;
+   if(t==='kx'){c=pick([0.5,1.5,2,3]);xs=[2,4,6];f=x=>c*x}
+   else if(t==='k/x'){c=pick([8,12,24]);xs=[1,2,4];f=x=>c/x}
+   else if(t==='ax²'){[c,xs]=pick([[0.25,[2,4,6]],[0.25,[2,4,8]],[0.5,[2,4,6]],[1,[1,2,3]],[2,[1,2,3]]]);f=x=>c*x*x}
+   else{[c,xs]=pick([[0.125,[2,4,6]],[0.5,[1,2,3]],[1,[1,2,3]]]);f=x=>c*x**3}
+   lab=t==='kx'?'y = kx':t==='k/x'?'y = k/x':t==='ax²'?'y = ax²':'y = ax³';cl=t.startsWith('k')?'k =':'a =';
+   const pts=xs.map(x=>[x,f(x)]);const p=pick([1,2]),q=p+ri(2,4);const dec=t==='k/x';const mx=dec?f(p):f(q),mn=dec?f(q):f(p);
+   const X=Math.max(q,xs[2])+1;const ymax=Math.max(...pts.map(z=>z[1]),mx)*1.15;const ratio=f(xs[1])/f(xs[0]);
+   return{q:`${src()}На графике одна из функций: y = kx, y = k/x, y = ax², y = ax³. Отмечены точки ${pts.map(z=>'('+z[0]+'; '+F(z[1],3)+')').join(', ')}. Найдите формулу, наибольшее и наименьшее значения на отрезке [${p}; ${q}]. Функция на этом отрезке возрастает или убывает?`,
+    extra:plot(f,pts,[0,X],[0,ymax]),
+    fields:[choice('тип',['y = kx','y = k/x','y = ax²','y = ax³'],lab),num(cl,c,{tol:1e-3}),num('наиб.',mx,{tol:0.0051}),num('наим.',mn,{tol:0.0051}),choice('на отрезке',['возрастает','убывает'],dec?'убывает':'возрастает')],
+    hints:[`x: ${xs[0]} → ${xs[1]} (вдвое), y: ${F(pts[0][1],3)} → ${F(pts[1][1],3)}. Во сколько раз изменился y?`,'× 2 → kx; : 2 → k/x; × 4 → ax²; × 8 → ax³. Коэффициент: подставь точку.',dec?'y = k/x при x > 0 убывает: наибольшее — на левом конце.':'При x > 0 функция растёт: наименьшее — на левом конце, наибольшее — на правом.'],
+    sol:[`x × 2 → y ${ratio>=1?'× '+F(ratio):': '+F(1/ratio)} ⇒ ${lab}`,`${cl} ${F(c,3)}; проверка по точке (${pts[2][0]}; ${F(pts[2][1],3)}) ✓`,`${dec?'наиб. '+F(mx,3)+' при x = '+p+'; наим. '+F(mn,3)+' при x = '+q:'наим. '+F(mn,3)+' при x = '+p+'; наиб. '+F(mx,3)+' при x = '+q}`,dec?'убывает':'возрастает']}}
+};
+['B1 · Размеры по эскизу','B2 · Площадь S ± Δ','B3 · Стоимость материала','B4 · Увеличение в k раз','B5 · Сканирование, DPI'].forEach(k=>{GM[k]=()=>TOPICS.find(t=>t.id==='midB').orig[k]([genV(),pick(MW)])});
+for(const id of ['midA','midB']){const T=TOPICS.find(t=>t.id===id);T.orig={...T.gens};for(const k in T.orig){T.gens[k]=()=>Math.random()<1/3?T.orig[k]():GM[k]()}}
+
+/* ---------- state & render ---------- */
+let cur=null, task=null, kindSel='all', hintN=0, tries=0, solved=0, total=0;
+const $=s=>document.querySelector(s);
+function navRender(){ $('#nav').innerHTML=`<button data-id="home" class="${cur?'':'on'}">Главная</button>`+TOPICS.map(t=>`<button data-id="${t.id}" class="${cur&&cur.id===t.id?'on':''}"><span class="wk">${t.wk}</span>${t.title}</button>`).join('') }
+function setHome(){
+  cur=null; navRender();
+  const types=TOPICS.reduce((s,t)=>s+Object.keys(t.gens).length,0), reg=TOPICS.filter(t=>!t.id.startsWith('mid'));
+  let last='';try{const id=localStorage.getItem('trainer-topic');const t=TOPICS.find(x=>x.id===id);if(t)last=`<button class="btn" data-go="${t.id}">Продолжить: ${t.title}</button>`}catch(e){}
+  const card=t=>`<button class="tcard${t.id.startsWith('mid')?' mid':''}" data-go="${t.id}"><span class="wk">${t.id.startsWith('mid')?'Мидтерм':'Неделя '+t.wk.replace('н','')}</span><b>${t.title}</b><span class="n">${pl(Object.keys(t.gens).length,['тип задач','типа задач','типов задач'])}${MAT[t.id]?' · материалы занятий':''}</span></button>`;
+  $('#main').innerHTML=`
+  <section class="hero">
+    <div><div class="eyebrow">1 курс · математика</div>
+      <h2>Тренажёр: решай, проверяй, разбирайся</h2>
+      <p>Здесь собраны все темы курса. По каждой теме — тренажёр, формулы, частые ошибки и ссылки на материалы занятий.</p>
+      <p>Можно повторить конкретную тему или готовиться к мидтерму и дополнительной работе по нему.</p>
+      <div class="cta"><button class="btn primary" data-go="midA">Мидтерм: часть A</button><button class="btn primary" data-go="midB">Мидтерм: часть B</button>${last}</div>
+    </div>
+    <div class="me" role="img" aria-label="Айдар Султанович с табличкой-приветствием">${buddySVG('hello')}</div>
+  </section>
+  <div class="stats">
+    <div class="stat"><b>${TOPICS.length}</b><span>тем: ${reg.length} по неделям и 2 по мидтерму</span></div>
+    <div class="stat"><b>${types}</b><span>типов задач</span></div>
+    <div class="stat"><b>∞</b><span>задач: числа каждый раз новые, ответ проверяется сразу</span></div>
+    <div class="stat"><b>72</b><span>настоящие задачи мидтерма: варианты α и β, 6 департаментов</span></div>
+  </div>
+  <section class="panel"><h3>Как это работает</h3><ol class="steps">
+    <li>Выбери тему. Сначала прочитай формулы и частые ошибки — это то, на чём чаще всего теряют баллы.</li>
+    <li>Решай в тетради, ответ впиши в поле и нажми «Проверить». Зелёное поле — верно, красное — ищи ошибку.</li>
+    <li>Застрял — возьми «Подсказку». Их две-три, каждая ближе к ответу. «Решение» показывает весь ход.</li>
+    <li>«Новая задача» даёт ту же задачу с другими числами. В списке над задачей можно выбрать конкретный тип.</li>
+  </ol></section>
+  <div class="cols">
+    <section class="panel"><h3>Как вписывать ответ</h3><ul class="err">
+      <li>Запятая или точка — как удобно: <b>2,5</b> = <b>2.5</b>.</li>
+      <li>Дробь можно дробью: <b>1/64</b>.</li>
+      <li>Пробелы в больших числах не мешают: <b>19 961 856</b>.</li>
+      <li>Знак % писать не обязательно. Единицы уже стоят рядом с полем.</li>
+      <li>Округляй так, как просит условие: до десятых, до сома, две значащие цифры. Где написано «как удобно», засчитается и 233, и 233,3, и 233,33.</li></ul></section>
+    <section class="panel"><h3>Про мидтерм</h3><ul class="err">
+      <li><b>Часть A</b> — номера A1–A6, <b>часть B</b> — кейсы B1–B5 всех департаментов.</li>
+      <li>Примерно каждая третья задача — настоящая из вариантов α и β, остальные — такие же по мотивам, с другими числами.</li>
+      <li>В части B все данные вписаны в условие: каждую задачу можно решать отдельно.</li>
+      <li><b>Часть C</b> — ответ словами, тренажёр её не проверяет. Повтори объяснения по презентациям.</li></ul></section>
+  </div>
+  <section style="display:grid;gap:10px"><h3 class="sec">Мидтерм</h3><div class="tgrid">${TOPICS.filter(t=>t.id.startsWith('mid')).map(card).join('')}</div>
+    <h3 class="sec">Темы по неделям</h3><div class="tgrid">${reg.map(card).join('')}</div></section>
+  <p class="lead" style="font-size:.9em">Счётчик «Решено» живёт, пока открыта страница: после перезагрузки он обнуляется. Тренажёр — для практики, в оценку он не идёт.</p>`;
+  $('#main').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setTopic(b.dataset.go));
+  if(location.hash) history.replaceState(null,'',location.pathname+location.search);
+  window.scrollTo(0,0);
+}
+const PRAISE=['Найс!','Зачёт!','Шаришь!','Cool!','Perfecto!','Awesome!','Баракелде!','Жакшы!','Азамат!','Сонун!','Керемет!','Чебер!','Кыйын!'];let buddyT,praiseBag=[],lastPraise='';
+function nextPraise(){let p;do{p=pick(PRAISE)}while(p===lastPraise);return lastPraise=p}
+function buddyPop(){const b=$('#buddy');if(!b.querySelector('svg'))b.insertAdjacentHTML('beforeend',buddySVG());$('#buddysay').textContent=nextPraise();b.classList.add('on');clearTimeout(buddyT);buddyT=setTimeout(()=>b.classList.remove('on'),2200)}
+function setTopic(id){
+  cur=TOPICS.find(t=>t.id===id)||TOPICS[0]; kindSel='all'; navRender();
+  window.scrollTo(0,0); const b=$('#nav button.on'); if(b) b.scrollIntoView({block:'nearest',inline:'center'});
+  const kinds=Object.keys(cur.gens);
+  $('#main').innerHTML=`
+  <section><div class="eyebrow">Неделя ${cur.wk.replace('н','')}</div><h2 class="tt">${cur.title}</h2><p class="lead">${cur.lead}</p></section>
+  ${matHTML(cur.id)}
+  <div class="cols">
+    <div class="panel"><h3>Формулы</h3>${cur.formulas.map(([f,n])=>`<div class="f">${f}</div>${n?`<p class="fnote">${n}</p>`:''}`).join('')}</div>
+    <div class="panel"><h3>Частые ошибки</h3><ul class="err">${cur.mistakes.map(([a,b])=>`<li><b>${a}.</b> ${b}</li>`).join('')}</ul></div>
+  </div>
+  <section class="card" aria-live="polite">
+    <div class="cardhead"><span class="eyebrow">Тренажёр</span>
+      <select id="kind" aria-label="Тип задачи"><option value="all">Все типы задач</option>${kinds.map(k=>`<option value="${k}">${k}</option>`).join('')}</select>
+      <span class="score" id="score"></span></div>
+    <div id="task"></div>
+  </section>`;
+  $('#kind').onchange=e=>{kindSel=e.target.value;newTask()};
+  try{localStorage.setItem('trainer-topic',cur.id)}catch(e){}
+  if(location.hash!=='#'+cur.id) history.replaceState(null,'','#'+cur.id);
+  newTask();
+}
+function newTask(){
+  const kinds=Object.keys(cur.gens); const k=kindSel==='all'?pick(kinds):kindSel;
+  task=cur.gens[k](); task.kind=k; hintN=0; tries=0; renderTask();
+}
+function renderTask(){
+  const t=task;
+  $('#task').innerHTML=`
+   <div class="eyebrow" style="color:var(--muted);margin-bottom:6px">${t.kind}</div>
+   <p class="q">${t.q}</p>${t.extra||''}
+   <div class="fields" style="margin-top:12px">${t.fields.map((f,i)=>f.kind==='num'
+     ?`<div class="field" id="fw${i}"><label for="f${i}">${f.label||'Ответ'}</label><input id="f${i}" inputmode="decimal" autocomplete="off"><span class="unit">${f.unit||''}</span></div>`
+     :`<div class="field" id="fw${i}"><label>${f.label||'Ответ'}</label><div class="seg" id="f${i}">${f.opts.map(o=>`<button type="button" data-v="${o}">${o}</button>`).join('')}</div></div>`).join('')}</div>
+   <div class="actions"><button class="btn primary" id="check">Проверить</button><button class="btn" id="hint">Подсказка</button><button class="btn" id="solbtn" disabled>Решение</button><button class="btn" id="next">Новая задача</button></div>
+   <p class="msg" id="msg"></p><div class="tip" id="tip" hidden></div><div class="hints" id="hints"></div><div id="sol"></div>`;
+  t.fields.forEach((f,i)=>{ if(f.kind==='choice'){ $('#f'+i).onclick=e=>{const b=e.target.closest('button');if(!b)return;[...$('#f'+i).children].forEach(x=>x.classList.toggle('sel',x===b));f.val=b.dataset.v;$('#fw'+i).classList.remove('ok','no')} }
+    else { $('#f'+i).addEventListener('keydown',e=>{if(e.key==='Enter')check()}); $('#f'+i).addEventListener('input',()=>$('#fw'+i).classList.remove('ok','no')) } });
+  $('#check').onclick=check; $('#next').onclick=newTask; $('#hint').onclick=showHint; $('#solbtn').onclick=showSol;
+  updScore(); const first=$('#f0'); if(first&&first.tagName==='INPUT'&&!matchMedia('(pointer:coarse)').matches) first.focus();
+}
+function diag(f,inp,v){
+  const d=Math.min(decOf(inp),6), ex=f.exact??f.ans, near=(a,b)=>Math.abs(a-b)<=Math.max(0.5*10**-d,1e-6*Math.abs(b))+1e-9;
+  for(const [val,msg] of f.traps) if(isFinite(val)&&near(v,val)) return msg;
+  if(ex!==0&&near(v,-ex)) return 'Проверь знак ответа.';
+  for(const r of [10,100,1000]){ if(ex!==0&&(near(v,ex*r)||near(v,ex/r))){
+    if(String(f.unit).includes('%')&&r===100&&near(v,ex/r)) return 'Похоже, это доля, а не проценты: умножь на 100 %.';
+    return `Ответ отличается от верного ровно в ${r} раз. Проверь единицы измерения (см ↔ м, г ↔ кг) и положение запятой.`}}
+  const P=10**d, sc=ex*P;
+  if(Math.abs(sc-Math.round(sc))>1e-7 && [Math.floor(sc),Math.ceil(sc)].some(c=>Math.abs(v-c/P)<1e-9))
+    return f.up?'Повнимательнее с округлением: здесь округляем только вверх — должно хватить.':'Повнимательнее с округлением.';
+  return null;
+}
+function check(){
+  let all=true, any=false; const tips=[];
+  task.fields.forEach((f,i)=>{let ok;
+    if(f.kind==='num'){const v=parseAns($('#f'+i).value); if(isNaN(v)){ok=false}else{any=true; ok=f.flex?Math.abs(v-f.ans)<=0.5*10**-Math.min(decOf($('#f'+i).value),6)+1e-9:Math.abs(v-f.ans)<=f.tol+1e-9; if(!ok){const t=diag(f,$('#f'+i).value,v); if(t&&!tips.includes(t))tips.push(t)}}}
+    else {if(f.val)any=true; ok=f.val===f.ans}
+    $('#fw'+i).classList.toggle('ok',ok); $('#fw'+i).classList.toggle('no',!ok); if(!ok)all=false;});
+  const m=$('#msg'), tp=$('#tip');
+  if(tips.length&&any){tp.innerHTML=tips.map(t=>`<p>${t}</p>`).join('');tp.hidden=false}else{tp.hidden=true;tp.innerHTML=''}
+  if(!any){m.className='msg no';m.textContent='Впиши ответ в поле.';return}
+  tries++; $('#solbtn').disabled=false;
+  if(!task.counted){task.counted=true;total++}
+  if(all){ m.className='msg ok'; m.textContent='Верно!'; buddyPop(); if(!task.done){task.done=true;solved++} }
+  else { m.className='msg no'; m.textContent=tries===1?'Неверно. Проверь ход решения или возьми подсказку.':'Пока неверно. Можно открыть решение.'; }
+  updScore();
+}
+function showHint(){ if(hintN<task.hints.length){ $('#hints').insertAdjacentHTML('beforeend',`<div class="hint"><b>Подсказка ${hintN+1}.</b> ${task.hints[hintN]}</div>`); hintN++ } if(hintN>=task.hints.length){$('#hint').disabled=true;$('#solbtn').disabled=false} }
+function showSol(){ $('#sol').innerHTML=`<div class="sol"><b>Решение</b>${task.sol.map(s=>`<p>${s}</p>`).join('')}<p>Ответ: ${task.fields.map(f=>(f.label?f.label+' ':'')+f.show+(f.unit&&f.kind==='num'&&!String(f.show).includes(f.unit)?' '+f.unit:'')).join('; ')}</p></div>`; task.done=true; if(!task.counted){task.counted=true;total++} $('#solbtn').disabled=true; updScore() }
+function updScore(){ $('#score').textContent=total?`Решено: ${solved} из ${total}`:'' }
+$('#nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;b.dataset.id==='home'?setHome():setTopic(b.dataset.id)};
+window.addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(!TOPICS.some(t=>t.id===id)){if(cur)setHome()}else if(!cur||id!==cur.id)setTopic(id)});
+$('#bigbtn').onclick=()=>{const on=document.documentElement.classList.toggle('big');$('#bigbtn').setAttribute('aria-pressed',on);try{localStorage.setItem('trainer-big',on?'1':'')}catch(e){}};
+try{if(localStorage.getItem('trainer-big')){document.documentElement.classList.add('big');$('#bigbtn').setAttribute('aria-pressed','true')}}catch(e){}
+{const start=location.hash.slice(1); TOPICS.some(t=>t.id===start)?setTopic(start):setHome();}
+</script>
