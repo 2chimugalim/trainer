@@ -1,5 +1,25 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Тренажёр по математике</title>
+<meta name="description" content="Тренажёр по математике для 1 курса Compass College: задачи с автоматической проверкой, формулы, частые ошибки и подготовка к мидтерму.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="https://2chimugalim.github.io/trainer/">
+<meta property="og:title" content="Тренажёр по математике · Compass College">
+<meta property="og:description" content="Задачи по всем темам 1 курса с проверкой и подсказками. Подготовка к мидтерму: части A и B.">
+<meta property="og:image" content="https://2chimugalim.github.io/trainer/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Пиксельный преподаватель с табличкой MATH FOR CREATORS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F4F3EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141412" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ACB948'/%3E%3Ctext x='15' y='23' font-family='Arial,sans-serif' font-weight='700' font-size='18' text-anchor='middle' fill='%23141412'%3Ex%3C/text%3E%3Ctext x='25' y='14' font-family='Arial,sans-serif' font-weight='700' font-size='10' text-anchor='middle' fill='%23141412'%3E2%3C/text%3E%3C/svg%3E">
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;700&family=Roboto+Mono:wght@500&display=swap">
 <style>
 /* Layout: topic bar on top; one topic at a time — formulas · mistakes · trainer card. Brand: Compass College (Black / Ivory / Pistachio). */
@@ -16,12 +36,15 @@
   --bg:#141412; --surface:#1E1E1B; --ivory:#2A2A26; --ink:#EEEDE7; --muted:#A7A59C; --line:#3A3934;
   --accent:#ACB948; --accent-ink:#D3DD86; --good:#7FC98A; --good-bg:#1F3323; --bad:#F0907F; --bad-bg:#3A201B; color-scheme:dark}
 :root.big{--base:22px}
+/* «Крупно» для проектора: шире колонка и крупнее график */
+:root.big .wrap{max-width:1180px}
+:root.big svg.plot{max-width:640px}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:var(--base);line-height:1.45;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
-.wrap{max-width:860px;margin:0 auto}
-header.top{background:var(--bg);padding-block:14px 10px;border-bottom:1px solid var(--line)}
+.wrap{max-width:1080px;margin:0 auto}
+header.top{background:var(--bg);padding-block:14px 0}
 .brandrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .brand h1{font-size:1.45em;margin:0;font-weight:700;letter-spacing:.2px;text-wrap:balance}
@@ -30,16 +53,23 @@ header.top{background:var(--bg);padding-block:14px 10px;border-bottom:1px solid 
 .logo{height:36px;width:auto;display:block}
 :root[data-theme="dark"] .logo{filter:invert(1)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .logo{filter:invert(1)}}
+/* тёмная тема: светлая обводка в 1 пиксель вокруг пиксельного персонажа, иначе чёрный контур сливается с фоном */
+:root[data-theme="dark"] svg.px{filter:drop-shadow(1.5px 0 0 var(--ink)) drop-shadow(-1.5px 0 0 var(--ink)) drop-shadow(0 1.5px 0 var(--ink)) drop-shadow(0 -1.5px 0 var(--ink))}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) svg.px{filter:drop-shadow(1.5px 0 0 var(--ink)) drop-shadow(-1.5px 0 0 var(--ink)) drop-shadow(0 1.5px 0 var(--ink)) drop-shadow(0 -1.5px 0 var(--ink))}}
 @media (max-width:640px){.logo{height:28px}}
 .tbtn{font:inherit;font-size:.82em;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;cursor:pointer}
 .tbtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-nav.topics{display:flex;flex-wrap:wrap;gap:6px;padding-top:10px}
-@media (max-width:700px){nav.topics{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}}
-nav.topics button{flex:none;font:inherit;font-size:.86em;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+/* панель тем прилипает к верху экрана: тему можно сменить, не прокручивая наверх */
+nav.topics{position:sticky;top:0;z-index:15;background:var(--bg);display:flex;flex-wrap:wrap;gap:6px;padding-block:10px;border-bottom:1px solid var(--line)}
+@media (max-width:700px){nav.topics{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px 48px;
+  -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent)}
+  nav.topics::-webkit-scrollbar{display:none}}
+nav.topics a{flex:none;font-size:.86em;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;
   border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
-nav.topics button .wk{color:var(--muted);margin-right:6px;font-variant-numeric:tabular-nums}
-nav.topics button.on{background:var(--accent);border-color:var(--accent);color:#141412}
-nav.topics button.on .wk{color:#3B421A}
+nav.topics a:hover{border-color:var(--ink)}
+nav.topics a .wk{color:var(--muted);margin-right:6px;font-variant-numeric:tabular-nums}
+nav.topics a.on{background:var(--accent);border-color:var(--accent);color:#141412}
+nav.topics a.on .wk{color:#3B421A}
 main{padding-top:20px;display:grid;gap:18px}
 .eyebrow{text-transform:uppercase;letter-spacing:1.2px;font-size:.72em;color:var(--accent-ink);font-weight:700}
 h2.tt{margin:2px 0 0;font-size:1.7em;line-height:1.15;text-wrap:balance}
@@ -76,7 +106,10 @@ svg.plot{width:100%;max-width:420px;height:auto;display:block}
 .fields{display:grid;gap:14px}
 .field{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .field label{min-width:110px;flex:0 1 auto}
-.field input{font:inherit;font-family:var(--mono);font-size:1em;width:150px;max-width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+@media (max-width:520px){.field{gap:8px}.field label{min-width:0;flex:1 0 100%}.field input{width:auto;flex:1 1 0;min-width:0}}
+.pm{display:none;font:inherit;font-weight:700;font-size:1.05em;min-width:44px;height:40px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+@media (pointer:coarse){.pm{display:inline-block}}
+.field input{font:inherit;font-family:var(--mono);font-size:max(1em,16px);width:150px;max-width:100%;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
 .field input:focus,select:focus,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
 .field .unit{color:var(--muted);font-size:.9em}
 .field.ok input{border-color:var(--good);background:var(--good-bg)}
@@ -89,6 +122,7 @@ svg.plot{width:100%;max-width:420px;height:auto;display:block}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 #task .msg{margin-top:12px}
 #task .tip,#task .hints,#task #sol{margin-top:10px}
+a.btn{display:inline-block;text-decoration:none}
 .btn{font:inherit;font-weight:700;border-radius:9px;padding:9px 16px;cursor:pointer;border:1.5px solid var(--ink);background:var(--surface);color:var(--ink)}
 .btn.primary{background:var(--ink);color:var(--bg)}
 .btn:disabled{opacity:.4;cursor:default}
@@ -116,7 +150,7 @@ svg.plot{width:100%;max-width:420px;height:auto;display:block}
 .stat span{color:var(--muted);font-size:.86em}
 .steps{margin:0;padding-left:20px;display:grid;gap:6px}
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
-.tcard{font:inherit;text-align:left;cursor:pointer;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:3px}
+.tcard{font:inherit;text-align:left;text-decoration:none;cursor:pointer;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:3px}
 .tcard:hover{border-color:var(--ink)}
 .tcard .wk{font-size:.75em;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
 .tcard b{font-size:1.02em}
@@ -144,9 +178,9 @@ footer{color:var(--muted);font-size:.82em;padding-top:8px}
       <img class="logo" src="data:image/png;base64,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" alt="Compass College" width="113" height="36">
     </div>
   </div>
-  <nav class="topics" id="nav" aria-label="Темы"></nav>
 </header>
-<main id="main"></main>
+<nav class="topics" id="nav" aria-label="Темы"></nav>
+<main id="main"><noscript><p class="lead">Для работы тренажёра нужен JavaScript. Включите его в настройках браузера или откройте сайт в другом браузере.</p></noscript></main>
 <div id="buddy" aria-hidden="true"><div class="say" id="buddysay"></div></div>
 <footer>Ответы с запятой или точкой — как удобно. Дробь можно писать как 1/64. Числа в задачах меняются при каждой новой задаче. В мидтерме примерно каждая третья задача — настоящая из вариантов α и β, остальные — по мотивам.</footer>
 </div>
@@ -156,7 +190,7 @@ footer{color:var(--muted);font-size:.82em;padding-top:8px}
 const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const r2=(x,d)=>{const p=10**d;return Math.round(x*p+1e-9*Math.sign(x))/p};
-const F=(x,d=2)=>{if(typeof x!=='number')return x;const s=Number(r2(x,d)).toLocaleString('ru-RU',{maximumFractionDigits:d,useGrouping:true});return s.replace(/ /g,' ')};
+const F=(x,d=2)=>{if(typeof x!=='number')return x;const s=Number(r2(x,d)).toLocaleString('ru-RU',{maximumFractionDigits:d,useGrouping:true});return s.replace(/ /g,' ').replace(/^-/,'−')};
 const N=x=>`<span class="num">${x}</span>`;
 const sup=s=>`<sup>${s}</sup>`;
 const sig2=x=>{if(x===0)return 0;const e=Math.floor(Math.log10(Math.abs(x)));const p=10**(e-1);return Math.round(x/p)*p};
@@ -164,7 +198,8 @@ const ceil1=x=>{const p=10**Math.floor(Math.log10(x)+1e-12);return Math.ceil(x/p
 const PHI=(1+Math.sqrt(5))/2;
 const pl=(n,f)=>{const a=n%10,b=n%100;return n+' '+(a===1&&b!==11?f[0]:a>=2&&a<=4&&(b<12||b>14)?f[1]:f[2])};
 const YRS=['год','года','лет'],MON=['месяц','месяца','месяцев'];
-const RAZ=k=>Number.isInteger(k)?pl(k,['раз','раза','раз']).split(' ')[1]:'раза';
+const MN=x=>String(x).replace('-','−');
+const RAZ=k=>{k=r2(k,6);return Number.isInteger(k)?pl(k,['раз','раза','раз']).split(' ')[1]:'раза'};
 function parseAns(s){
   if(s==null)return NaN;s=String(s).trim().replace(/[\s  ]/g,'').replace(/%$/,'').replace(/,/g,'.').replace(/−/g,'-');
   if(!s)return NaN;
@@ -179,11 +214,10 @@ function expandNum(d2,n){ // d2 = two digits as integer 10..99, value d2*10^(n-1
   if(e>=0){return F(d2*10**e,0)}
   const k=-e; let s=lead.padStart(k+1,'0'); s=s.slice(0,s.length-k)+','+s.slice(s.length-k); return s.replace(/0+$/,'').replace(/,$/,'');
 }
-const superDigits={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
 const pw=n=>'<sup>'+String(n).replace('-','−')+'</sup>';
 
 /* ---------- midterm data ---------- */
-const src=(s,c)=>`<span class="src">${s?'Мидтерм · вариант '+s+(c?' · '+c+'-29':''):'По мотивам мидтерма'+(c?' · сюжет '+c:'')}</span>`;
+const src=(s,c)=>`<span class="src">${s?'Мидтерм · вариант '+s+(c?' · '+c:''):'По мотивам мидтерма'+(c?' · задача '+c:'')}</span>`;
 const fx=x=>F(x,2).includes(',')?F(x,2).padEnd(F(x,2).indexOf(',')+3,'0'):F(x,0)+',00';
 const MV=[{s:'α',k:20,s1:9,s2:6,a:1.8,b:1.2,dS:0.03,price:500,kk:1.5,dpi:300},{s:'β',k:25,s1:8,s2:6,a:2.0,b:1.5,dS:0.04,price:400,kk:2,dpi:150}];
 const MW=[
@@ -220,7 +254,7 @@ const TOPICS=[
  formulas:[['a × 10<sup>n</sup>,   где 1 ≤ a < 10','n — сколько раз сдвинули запятую: влево — n > 0, вправо — n < 0'],['3 600 000 000 = 3,6 × 10<sup>9</sup>',''],['0,00047 = 4,7 × 10<sup>−4</sup>',''],['(a × 10<sup>m</sup>) × (b × 10<sup>k</sup>) = (a × b) × 10<sup>m+k</sup>','если a × b ≥ 10 — сдвинь запятую и прибавь 1 к степени']],
  mistakes:[['36 × 10<sup>8</sup>','не стандартный вид: перед запятой должна стоять одна цифра от 1 до 9'],['Знак степени','число меньше 1 — степень отрицательная'],['«Две значащие цифры»','это a с одной цифрой после запятой: 1,6 × 10<sup>7</sup>, а не 1,59 × 10<sup>7</sup>'],['3 × 10<sup>7</sup> вместо 3,0 × 10<sup>7</sup>','если просят две значащие цифры, ноль после запятой пишем']],
  gens:{
-  'Запиши в стандартном виде':()=>{const d=ri(11,99);let n=pick([-7,-6,-5,-4,-3,3,4,5,6,7,8,9]);if(d%10===0&&false);const a=d/10;
+  'Запиши в стандартном виде':()=>{const d=ri(11,99);let n=pick([-7,-6,-5,-4,-3,3,4,5,6,7,8,9]);const a=d/10;
     return{q:`Запишите число в стандартном виде a × 10<sup>n</sup>:<br>${N(expandNum(d,n))}`,fields:[num('a =',a,{tol:1e-9}),num('n =',n)],
      hints:['Поставь запятую так, чтобы перед ней осталась одна ненулевая цифра.','Посчитай, на сколько знаков сдвинулась запятая. Сдвиг влево — степень положительная, вправо — отрицательная.'],
      sol:[`${expandNum(d,n)} = ${F(a,1)} × 10${pw(n)}`]}},
@@ -236,7 +270,7 @@ const TOPICS=[
   'Произведение':()=>{const a=pick([1.5,2,2.5,3,4,5,6,8]),b=pick([1.2,1.5,2,2.5,3,4,5]);const m=ri(2,6),k=pick([-3,-2,2,3,4]);let c=a*b,n=m+k;if(c>=10){c=c/10;n++}
     return{q:`Вычислите и запишите результат в стандартном виде a × 10<sup>n</sup>. Найдите a и n: ${N('('+F(a,1)+' × 10'+pw(m)+') × ('+F(b,1)+' × 10'+pw(k)+')')}`,fields:[num('a =',r2(c,3),{tol:1e-6}),num('n =',n)],
      hints:['Перемножь числа отдельно, степени — отдельно: показатели складываются.','Если получилось 10 или больше, сдвинь запятую на один знак влево и прибавь 1 к степени.'],
-     sol:[`${F(a,1)} × ${F(b,1)} = ${F(a*b,2)}; 10${pw(m)} × 10${pw(k)} = 10${pw(m+k)}`,`${F(a*b,2)} × 10${pw(m+k)} = ${F(c,3)} × 10${pw(n)}`]}}
+     sol:[`${F(a,1)} × ${F(b,1)} = ${F(a*b,2)}; 10${pw(m)} × 10${pw(k)} = 10${pw(m+k)}`,...(a*b>=10?[`${F(a*b,2)} × 10${pw(m+k)} = ${F(c,3)} × 10${pw(n)}`]:[`уже стандартный вид: ${F(c,3)} × 10${pw(n)}`])]}}
  }},
 {id:'prog',wk:'н2',title:'Прогрессии и форматы A',lead:'Каждый следующий шаг прибавляет одно и то же или умножает на одно и то же. Листы A — геометрическая прогрессия.',
  formulas:[['арифметическая: a<sub>n</sub> = a<sub>1</sub> + (n − 1) × d','d — разность: что прибавляем'],['геометрическая: b<sub>n</sub> = b<sub>1</sub> × q<sup>n − 1</sup>','q — знаменатель: на что умножаем'],['площадь листа An = 1 : 2<sup>n</sup> м²','A0 = 1 м², A4 = 1/16 м²'],['An больше Ak в 2<sup>k − n</sup> раз','«через один» лист — в 4 раза'],['стороны листа: a : b = √2','половина листа подобна целому']],
@@ -250,11 +284,11 @@ const TOPICS=[
      hints:[`Знаменатель q = ${b1*q} : ${b1} = ${q}.`,`b${n} = b1 × q${pw(n-1)}.`],sol:[`${b1} × ${q}${pw(n-1)} = ${b1} × ${q**(n-1)} = ${bn}`]}},
   'Площадь листа A':()=>{const n=ri(3,10);return{q:`Площадь листа A0 — 1 м², каждый следующий формат вдвое меньше. Какова площадь листа A${n}? Ответ — дробью, например 1/8.`,fields:[num('S =',1/2**n,{unit:'м²',show:'1/'+2**n,traps:[[1/2**(n-1),`Сдвиг на один лист: площадь A${n} = 1 : 2<sup>${n}</sup>.`],[1/2**(n+1),`Сдвиг на один лист: площадь A${n} = 1 : 2<sup>${n}</sup>.`],[1/(2*n),'Площадь делится пополам n раз — это степень двойки, а не 2 × n.']]})],
      hints:['A1 = 1/2, A2 = 1/4, A3 = 1/8: каждый шаг — ещё раз пополам.',`An = 1 : 2${pw('n')} м².`],sol:[`A${n} = 1 : 2${pw(n)} = 1/${2**n} м²`]}},
-  'Во сколько раз больше лист':()=>{const m=ri(0,5),k=m+ri(2,4);return{q:`Во сколько раз площадь листа A${m} больше площади листа A${k}?`,fields:[num('в',2**(k-m),{unit:'раз'})],
+  'Во сколько раз больше лист':()=>{const m=ri(0,5),k=m+ri(2,4);return{q:`Во сколько раз площадь листа A${m} больше площади листа A${k}?`,fields:[num('в',2**(k-m),{unit:RAZ(2**(k-m))})],
      hints:['Каждый шаг по номеру — площадь вдвое меньше.',`Шагов от A${m} до A${k}: ${k-m}.`],sol:[`2${pw(k-m)} = ${2**(k-m)}`]}},
   'Сумма площадей листов':()=>{const set=pick([[2,4,6],[1,3,5],[3,4,5],[2,3,4],[0,2,4],[4,6,8],[1,2,3,4]]);const mx=Math.max(...set);const numr=set.reduce((s,n)=>s+2**(mx-n),0);
     return{q:`Площадь A0 — 1 м², каждый следующий формат вдвое меньше. Найдите сумму площадей листов ${set.map(n=>'A'+n).join(', ')}. Ответ — дробью.`,fields:[num('S =',numr/2**mx,{unit:'м²',show:numr+'/'+2**mx,traps:set.includes(0)?[[(numr-2**mx)/2**mx,'Не забудь A0 — его площадь 1 м².']]:[]})],
-     hints:['Запиши площадь каждого листа: An = 1/2<sup>n</sup>.',`Общий знаменатель — ${2**mx}.`],sol:[set.map(n=>'1/'+2**n).join(' + ')+' = '+set.map(n=>2**(mx-n)).join(' + ')+'/'+2**mx+' = '+numr+'/'+2**mx+' м²']}}
+     hints:['Запиши площадь каждого листа: An = 1/2<sup>n</sup>.',`Общий знаменатель — ${2**mx}.`],sol:[set.map(n=>'1/'+2**n).join(' + ')+' = '+set.map(n=>2**(mx-n)+'/'+2**mx).join(' + ')+' = '+numr+'/'+2**mx+' м²']}}
  }},
 {id:'err',wk:'н3',title:'Приближённые вычисления и погрешность',lead:'Любой замер неточен. Записываем a ± Δ и считаем, сколько материала купить с запасом.',
  formulas:[['a ± Δ   →   границы: a − Δ … a + Δ',''],['относительная погрешность: δ = Δ : a × 100 %','две значащие цифры'],['периметр: ΔP = сумма погрешностей всех сторон','прямоугольник: ΔP = 2 × (Δa + Δb)'],['площадь: δS = δa + δb','ΔS = S × δS, округляем вверх до одной значащей цифры'],['проверка границами: (a − Δ)(b − Δ) и (a + Δ)(b + Δ)',''],['закупка — по наибольшей: S + ΔS','']],
@@ -281,31 +315,31 @@ const TOPICS=[
  mistakes:[['8<sup>2/3</sup> = 16/3','дробный показатель — это не умножение на дробь: ∛8 = 2, 2<sup>2</sup> = 4'],['2<sup>−3</sup> = −8','минус в показателе даёт дробь, а не отрицательное число'],['Возводить до корня','27<sup>2/3</sup>: удобнее ∛27 = 3, потом 3<sup>2</sup> = 9, чем 27<sup>2</sup> = 729 и корень']],
  gens:{
   'Дробный показатель':()=>{const q=pick([2,3,4,5]);const r={2:ri(2,9),3:ri(2,5),4:pick([2,3]),5:2}[q];const base=r**q;let p=pick([1,2,3].filter(x=>x!==q&&r**x<=1000));
-    return{q:`Вычислите: ${N(F(base,0)+sup(p+'/'+q))}`,fields:[num('=',r**p)],hints:[`Сначала корень ${q}-й степени из ${F(base,0)}.`,`Потом результат — в степень ${p}.`],sol:[`${q===2?'√':q===3?'∛':'⁽'+q+'⁾√'}${F(base,0)} = ${r}`,`${r}${pw(p)} = ${r**p}`]}},
+    return{q:`Вычислите: ${N(F(base,0)+sup(p+'/'+q))}`,fields:[num('Ответ',r**p)],hints:[`Сначала корень ${q}-й степени из ${F(base,0)}.`,`Потом результат — в степень ${p}.`],sol:[`${q===2?'√':q===3?'∛':'⁽'+q+'⁾√'}${F(base,0)} = ${r}`,`${r}${pw(p)} = ${r**p}`]}},
   'Отрицательный показатель':()=>{const q=pick([1,2,3]);const r=q===1?ri(2,6):q===2?ri(2,9):ri(2,5);const base=r**q;const p=q===1?ri(1,3):pick([1,2]);const v=r**p;
-    return{q:`Вычислите: ${N(F(base,0)+sup('−'+(q===1?p:p+'/'+q)))}  Ответ — дробью, например 1/8.`,fields:[num('=',1/v,{show:'1/'+v})],hints:['Минус в показателе: 1 разделить на то же число с плюсом.',q===1?`${base}${pw(p)} = ${v}`:`${F(base,0)}${sup(p+'/'+q)} = (корень ${q}-й степени)${pw(p)}`],sol:[`= 1 : ${v} = 1/${v}`]}},
+    return{q:`Вычислите: ${N(F(base,0)+sup('−'+(q===1?p:p+'/'+q)))}. Ответ — дробью, например 1/8.`,fields:[num('Ответ',1/v,{show:'1/'+v})],hints:['Минус в показателе: 1 разделить на то же число с плюсом.',q===1?`${base}${pw(p)} = ${v}`:`${F(base,0)}${sup(p+'/'+q)} = (корень ${q}-й степени)${pw(p)}`],sol:[`${F(base,0)}${sup('−'+(q===1?p:p+'/'+q))} = 1 : ${v} = 1/${v}`]}},
   'Сумма как на мидтерме':()=>{const q=pick([2,3,4]);const r={2:ri(2,9),3:ri(2,5),4:pick([2,3])}[q];const p=q===2?pick([1,3]):pick([1,2]);const t=pick([2,3,4]);const m=ri(1,3);const s=t*m;
-    return{q:`Вычислите: ${N(F(r**q,0)+sup(p+'/'+q)+' + √'+F(s*s,0)+' × '+t+sup('−1'))}`,fields:[num('=',r**p+m)],hints:[`${F(r**q,0)}${sup(p+'/'+q)}: корень ${q}-й степени, потом степень ${p}.`,`√${s*s} = ${s}; ${t}<sup>−1</sup> = 1/${t}.`],sol:[`${F(r**q,0)}${sup(p+'/'+q)} = ${r}${pw(p)} = ${r**p}`,`√${s*s} × ${t}<sup>−1</sup> = ${s} : ${t} = ${m}`,`${r**p} + ${m} = ${r**p+m}`]}}
+    return{q:`Вычислите: ${N(F(r**q,0)+sup(p+'/'+q)+' + √'+F(s*s,0)+' × '+t+sup('−1'))}`,fields:[num('Ответ',r**p+m)],hints:[`${F(r**q,0)}${sup(p+'/'+q)}: корень ${q}-й степени, потом степень ${p}.`,`√${s*s} = ${s}; ${t}<sup>−1</sup> = 1/${t}.`],sol:[`${F(r**q,0)}${sup(p+'/'+q)} = ${r}${pw(p)} = ${r**p}`,`√${s*s} × ${t}<sup>−1</sup> = ${s} : ${t} = ${m}`,`${r**p} + ${m} = ${r**p+m}`]}}
  }},
 {id:'scale',wk:'н4',title:'Масштаб и DPI',lead:'Чертёж ↔ натура и сантиметры ↔ пиксели — одна и та же линейная зависимость.',
  formulas:[['масштаб 1 : k   →   натура = чертёж × k',''],['чертёж = натура : k','переведи в одни единицы: 1 м = 100 см'],['1 дюйм = 2,54 см',''],['пиксели = сантиметры : 2,54 × DPI','округляем вверх'],['сантиметры = пиксели : DPI × 2,54','']],
  mistakes:[['360 м вместо 3,6 м','перевод см → м: делим на 100'],['Забыли дюймы','DPI — точек на дюйм, сначала переводим см в дюймы'],['1417 вместо 1418 px','пикселей должно хватить: округляем только вверх']],
  gens:{
-  'Чертёж → натура':()=>{const k=pick([10,20,25,40,50,100,200]),c=ri(15,120)/10;return{q:`Масштаб ${N('1 : '+k)}. На чертеже отрезок ${N(F(c,1)+' см')}. Сколько это в натуре, в метрах?`,fields:[num('',r2(c*k/100,3),{unit:'м'})],hints:[`В натуре в ${k} раз больше: ${F(c,1)} × ${k} см.`,'Переведи сантиметры в метры: : 100.'],sol:[`${F(c,1)} × ${k} = ${F(c*k,1)} см = ${F(c*k/100,3)} м`]}},
+  'Чертёж → натура':()=>{const k=pick([10,20,25,40,50,100,200]),c=ri(15,120)/10;return{q:`Масштаб ${N('1 : '+k)}. На чертеже отрезок ${N(F(c,1)+' см')}. Сколько это в натуре, в метрах?`,fields:[num('',r2(c*k/100,3),{unit:'м'})],hints:[`В натуре в ${k} раз больше: ${F(c,1)} × ${k} см.`,'Переведи сантиметры в метры — раздели на 100.'],sol:[`${F(c,1)} × ${k} = ${F(c*k,1)} см = ${F(c*k/100,3)} м`]}},
   'Натура → чертёж':()=>{const k=pick([20,25,50,100]),L=ri(15,90)/10;return{q:`Стена длиной ${N(F(L,1)+' м')}. Какой длины она будет на чертеже в масштабе ${N('1 : '+k)}, в сантиметрах?`,fields:[num('',r2(L*100/k,3),{tol:0.051,unit:'см'})],hints:['Переведи метры в сантиметры.',`Раздели на ${k}.`],sol:[`${F(L,1)} м = ${F(L*100,0)} см`,`${F(L*100,0)} : ${k} = ${F(L*100/k,2)} см`]}},
   'Сантиметры → пиксели':()=>{const cm=pick([4,5,6,7,8,9,10,12,15,18,20]),dpi=pick([150,200,300,600]);const px=cm/2.54*dpi;const ans=Math.ceil(px-1e-9);
-    return{q:`Эскиз шириной ${N(cm+' см')} сканируют с разрешением ${N(dpi+' DPI')}. Сколько пикселей по ширине? Округлите в нужную сторону.`,fields:[num('',ans,{unit:'px',exact:px,up:true,traps:[[cm*dpi,'DPI — точек на дюйм. Сначала переведи сантиметры в дюймы: : 2,54.']]})],hints:[`Переведи в дюймы: ${cm} : 2,54.`,`Умножь на ${dpi} и округли вверх.`],sol:[`${cm} : 2,54 × ${dpi} = ${F(px,2)} → вверх ${ans} px`]}},
+    return{q:`Эскиз шириной ${N(cm+' см')} сканируют с разрешением ${N(dpi+' DPI')}. Сколько пикселей по ширине? Округлите в нужную сторону.`,fields:[num('',ans,{unit:'px',exact:px,up:true,traps:[[cm*dpi,'DPI — точек на дюйм. Сначала переведи сантиметры в дюймы — раздели на 2,54.']]})],hints:[`Переведи в дюймы: ${cm} : 2,54.`,`Умножь на ${dpi} и округли вверх.`],sol:[`${cm} : 2,54 × ${dpi} = ${F(px,2)} → вверх ${ans} px`]}},
   'Пиксели → сантиметры':()=>{const px=pick([1200,1500,1800,2400,3000,3600]),dpi=pick([150,300]);const cm=px/dpi*2.54;
-    return{q:`Фото шириной ${N(F(px,0)+' px')}. Какой ширины получится отпечаток, если печатать с разрешением ${N(dpi+' DPI')}? Ответ в сантиметрах, до десятых.`,fields:[num('',r2(cm,1),{tol:0.051,unit:'см'})],hints:[`Дюймы: ${F(px,0)} : ${dpi}.`,'Переведи дюймы в сантиметры: × 2,54.'],sol:[`${F(px,0)} : ${dpi} = ${F(px/dpi,2)} дюйма`,`× 2,54 = ${F(cm,2)} ≈ ${F(cm,1)} см`]}}
+    return{q:`Фото шириной ${N(F(px,0)+' px')}. Какой ширины получится отпечаток, если печатать с разрешением ${N(dpi+' DPI')}? Ответ в сантиметрах, до десятых.`,fields:[num('',r2(cm,1),{tol:0.051,unit:'см'})],hints:[`Дюймы: ${F(px,0)} : ${dpi}.`,'Переведи дюймы в сантиметры: × 2,54.'],sol:[`${F(px,0)} : ${dpi} = ${Number.isInteger(px/dpi)?pl(px/dpi,['дюйм','дюйма','дюймов']):F(px/dpi,2)+' дюйма'}`,`× 2,54 = ${F(cm,2)}${Math.abs(cm-r2(cm,1))>1e-9?' ≈ '+F(cm,1):''} см`]}}
  }},
 {id:'sim',wk:'н5',title:'Подобие: k, k², k³',lead:'Увеличили всё в k раз: длина растёт в k, площадь — в k², объём и масса — в k³.',
  formulas:[['длина, периметр, кант   × k',''],['площадь, краска, ткань, пиксели   × k²',''],['объём, масса   × k³',''],['масштаб 1 : 20 → k = 20','макет → оригинал'],['площадь выросла в N раз → сторона в √N раз','']],
  mistakes:[['6 л краски вместо 18 л','краска на площадь — через k², а не k'],['16 кг вместо 1 кг','масса — через k³'],['Ответ в граммах вместо килограммов','при k³ числа большие — переводи единицы']],
  gens:{
   'Краска или ткань (k²)':()=>{const k=pick([2,3,4,5,1.5,2.5]);const [what,u,m]=pick([['краски',' л',ri(1,4)],['ткани',' м²',ri(2,6)],['плёнки',' м²',ri(1,5)]]);
-    return{q:`Логотип увеличили в ${N(F(k,1))} ${RAZ(k)} по ширине и высоте. На старый логотип ушло ${N(m+u)} ${what}. Сколько ${what} нужно на новый логотип (тем же слоем)?`,fields:[num('',r2(m*k*k,3),{unit:u.trim(),traps:[[m*k,'Краска и ткань идут на площадь: умножаем на k², а не на k.']]})],hints:['Краска и ткань идут на площадь.',`Площадь растёт в k² = ${F(k*k,2)} раза.`],sol:[`${m} × ${F(k,1)}<sup>2</sup> = ${m} × ${F(k*k,2)} = ${F(m*k*k,2)}${u}`]}},
+    return{q:`Логотип увеличили в ${N(F(k,1))} ${RAZ(k)} по ширине и высоте. На старый логотип ушло ${N(m+u)} ${what}. Сколько ${what} нужно на новый логотип (тем же слоем)?`,fields:[num('',r2(m*k*k,3),{unit:u.trim(),traps:[[m*k,'Краска и ткань идут на площадь: умножаем на k², а не на k.']]})],hints:['Краска и ткань идут на площадь.',`Площадь растёт в k² = ${F(k*k,2)} ${RAZ(k*k)}.`],sol:[`${m} × ${F(k,1)}<sup>2</sup> = ${m} × ${F(k*k,2)} = ${F(m*k*k,2)}${u}`]}},
   'Масса макета (k³)':()=>{const k=pick([5,8,10,20]),g=pick([40,50,80,100,200,250,300]);const kg=g*k**3/1000;
-    return{q:`Макет скульптуры в масштабе ${N('1 : '+k)} весит ${N(g+' г')}. Сколько весит оригинал из того же материала? Ответ в килограммах.`,fields:[num('',r2(kg,3),{unit:'кг',traps:[[g*k/1000,'Масса растёт как объём: умножаем на k³, а не на k.'],[g*k*k/1000,'Масса растёт как объём: k³, а не k² — у тела три измерения.']]})],hints:['Масса растёт как объём.',`k³ = ${k}<sup>3</sup> = ${k**3}. Граммы → килограммы: : 1000.`],sol:[`${g} × ${k**3} = ${F(g*k**3,0)} г = ${F(kg,3)} кг`]}},
+    return{q:`Макет скульптуры в масштабе ${N('1 : '+k)} весит ${N(g+' г')}. Сколько весит оригинал из того же материала? Ответ в килограммах.`,fields:[num('',r2(kg,3),{unit:'кг',traps:[[g*k/1000,'Масса растёт как объём: умножаем на k³, а не на k.'],[g*k*k/1000,'Масса растёт как объём: k³, а не k² — у тела три измерения.']]})],hints:['Масса растёт как объём.',`k³ = ${k}<sup>3</sup> = ${k**3}. Граммы → килограммы — раздели на 1000.`],sol:[`${g} × ${k**3} = ${F(g*k**3,0)} г = ${F(kg,3)} кг`]}},
   'Периметр и площадь':()=>{const a=ri(10,30)/10,b=ri(6,20)/10,k=pick([1.5,2,2.5,3]);
     return{q:`Скатерть ${N(F(a,1)+' × '+F(b,1)+' м')} сделали той же формы, но все размеры увеличили в ${N(F(k,1))} ${RAZ(k)}. Кант пришивают по всему краю. Найдите длину канта P и площадь S новой скатерти.`,fields:[num('P =',r2(2*(a+b)*k,3),{unit:'м',traps:[[2*(a+b),'Это периметр старой скатерти — умножь на k.'],[2*(a+b)*k*k,'Периметр — это длина: растёт в k раз, а не в k².'],[(a+b)*k,'Периметр — сумма всех четырёх сторон: 2 × (a + b).']]}),num('S =',r2(a*b*k*k,4),{tol:0.006,unit:'м²',traps:[[a*b*k,'Площадь растёт в k² раз, а не в k.'],[a*b,'Это площадь старой скатерти — умножь на k².']]})],
      hints:['Сначала периметр и площадь старой скатерти.',`Периметр × ${F(k,1)}, площадь × ${F(k*k,2)}.`],sol:[`P = 2 × (${F(a,1)} + ${F(b,1)}) × ${F(k,1)} = ${F(2*(a+b),1)} × ${F(k,1)} = ${F(2*(a+b)*k,2)} м`,`S = ${F(a*b,2)} × ${F(k*k,2)} = ${F(a*b*k*k,4)} м²`]}},
@@ -319,8 +353,8 @@ const TOPICS=[
   'Деление в золотом сечении':()=>{const L=ri(50,300);const big=L/PHI;return{q:`Отрезок ${N(L+' мм')} разделите в золотом сечении. Найдите большую и меньшую части (до целого мм).`,fields:[num('большая',Math.round(big),{tol:1.01,unit:'мм'}),num('меньшая',Math.round(L-big),{tol:1.01,unit:'мм'})],hints:['Большая часть = L × 0,618.','Меньшая = L − большая.'],sol:[`${L} × 0,618 ≈ ${F(big,1)} мм`,`${L} − ${F(big,1)} ≈ ${F(L-big,1)} мм`]}},
   'Модульная сетка':()=>{const W=pick([210,297,420,1000,1200]),u=W>500?'px':'мм';const m=W>500?pick([40,60,80]):pick([15,20,25]),n=pick([2,3,4,6]),g=W>500?pick([16,20,24]):pick([4,5,6]);const c=(W-2*m-(n-1)*g)/n;
     return{q:`Полоса шириной ${N(W+' '+u)}, поля по ${N(m+' '+u)}, ${N(pl(n,['колонка','колонки','колонок']))}, межколонник ${N(g+' '+u)}. Найдите ширину одной колонки (до десятых).`,fields:[num('',r2(c,1),{tol:0.051,unit:u,exact:c,traps:[[(W-2*m-n*g)/n,'Межколонников на один меньше, чем колонок.'],[(W-m-(n-1)*g)/n,'Полей два — слева и справа.'],[(W-(n-1)*g)/n,'Не забудь вычесть поля.'],[(W-2*m)/n,'Не забудь вычесть межколонники.']]})],hints:[`Вычти поля: ${W} − 2 × ${m}.`,`Межколонников ${n-1}. Остаток раздели на ${n}.`],sol:[`(${W} − ${2*m} − ${(n-1)*g}) : ${n} = ${W-2*m-(n-1)*g} : ${n} = ${F(c,2)} ${u}`]}},
-  'Правило третей':()=>{const [W,H]=pick([[1920,1080],[1080,1350],[3840,2160],[1200,900],[3000,2000]]);return{q:`Кадр ${N(W+' × '+H+' px')}. Координаты отсчитываем от левого верхнего угла кадра. Найдите x левой вертикальной линии третей и y верхней горизонтальной линии третей.`,fields:[num('x =',r2(W/3,1),{tol:0.51,unit:'px'}),num('y =',r2(H/3,1),{tol:0.51,unit:'px'})],hints:['Линии делят ширину и высоту на три равные части.',`x = ${W} : 3, y = ${H} : 3.`],sol:[`x = ${F(W/3,1)}, y = ${F(H/3,1)}`]}},
-  'Фибоначчи и φ':()=>{const fib=[1,1,2,3,5,8,13,21,34,55,89,144];const i=ri(5,10);return{q:`Найдите отношение соседних чисел Фибоначчи ${N(fib[i+1]+' : '+fib[i])} с точностью до тысячных. (Для сравнения: φ ≈ 1,618.)`,fields:[num('',r2(fib[i+1]/fib[i],3),{tol:0.0011})],hints:['Раздели большее на меньшее.','Округли до трёх знаков после запятой.'],sol:[`${fib[i+1]} : ${fib[i]} = ${F(fib[i+1]/fib[i],4)} ≈ ${F(fib[i+1]/fib[i],3)}`]}}
+  'Правило третей':()=>{const [W,H]=pick([[1920,1080],[1080,1350],[3840,2160],[1200,900],[3000,2000]]);return{q:`Кадр ${N(W+' × '+H+' px')}. Координаты отсчитываем от левого верхнего угла кадра. Найдите x левой вертикальной линии третей и y верхней горизонтальной линии третей (до десятых).`,fields:[num('x =',r2(W/3,1),{tol:0.51,unit:'px'}),num('y =',r2(H/3,1),{tol:0.51,unit:'px'})],hints:['Линии делят ширину и высоту на три равные части.',`x = ${W} : 3, y = ${H} : 3.`],sol:[`x = ${F(W/3,1)}, y = ${F(H/3,1)}`]}},
+  'Фибоначчи и φ':()=>{const fib=[1,1,2,3,5,8,13,21,34,55,89,144];const i=ri(5,10);return{q:`Найдите отношение соседних чисел Фибоначчи ${N(fib[i+1]+' : '+fib[i])} с точностью до тысячных. (Для сравнения: φ ≈ 1,618.)`,fields:[num('',r2(fib[i+1]/fib[i],3),{tol:0.0011})],hints:['Раздели большее на меньшее.','Округли до трёх знаков после запятой.'],sol:[`${fib[i+1]} : ${fib[i]} = ${F(fib[i+1]/fib[i],4)}${Math.abs(fib[i+1]/fib[i]-r2(fib[i+1]/fib[i],3))>1e-9?' ≈ '+F(fib[i+1]/fib[i],3):''}`]}}
  }},
 {id:'func',wk:'н6–7',title:'Функция по графику и таблице',lead:'Узнаём зависимость по точкам, находим наибольшее и наименьшее значение на отрезке.',
  formulas:[['y = kx   → x × 2, y × 2','прямая через начало'],['y = k/x   → x × 2, y : 2','xy = k — гипербола'],['y = ax²   → x × 2, y × 4','парабола'],['y = ax³   → x × 2, y × 8',''],['коэффициент: подставь точку, например x = 1',''],['наибольшее и наименьшее на отрезке — на концах или в вершине (для ax² — в x = 0)','']],
@@ -335,15 +369,15 @@ const TOPICS=[
      sol:[`x: ${F(pts[0][0])} → ${F(pts[1][0])}, y: ${F(pts[0][1])} → ${F(pts[1][1])}`,`это ${t==='kx'?'y = kx':t==='k/x'?'y = k/x':t==='ax²'?'y = ax²':'y = ax³'}, коэффициент ${F(c)}`]}},
   'Наибольшее и наименьшее на отрезке':()=>{const t=pick(['k/x','ax²','ax³']);let f,c,p,q,label;
     if(t==='k/x'){c=pick([6,8,12,24]);f=x=>c/x;p=pick([1,2]);q=pick([4,6].filter(v=>v>p));label=`y = ${c}/x`}
-    else if(t==='ax²'){c=pick([0.5,1,2]);f=x=>c*x*x;p=pick([-3,-2,-1,1]);q=ri(2,4);label=`y = ${F(c)}x²`}
-    else{c=pick([0.5,1,2]);f=x=>c*x**3;p=pick([-2,-1,0,1]);q=ri(2,3);label=`y = ${F(c)}x³`}
+    else if(t==='ax²'){c=pick([0.5,1,2]);f=x=>c*x*x;p=pick([-3,-2,-1,1]);q=ri(2,4);label=`y = ${c===1?'':F(c)}x²`}
+    else{c=pick([0.5,1,2]);f=x=>c*x**3;p=pick([-2,-1,0,1]);q=ri(2,3);label=`y = ${c===1?'':F(c)}x³`}
     const cand=[p,q];if(t==='ax²'&&p<0&&q>0)cand.push(0);const vals=cand.map(f);const mx=Math.max(...vals),mn=Math.min(...vals);
-    return{q:`Функция ${N(label)} на отрезке ${N('['+p+'; '+q+']')}. Найдите наибольшее и наименьшее значения.`,extra:plot(f,[[p,f(p)],[q,f(q)]],[Math.min(p,0)-0.5,q+0.5],[Math.min(0,mn)-Math.abs(mx-mn)*0.1-0.5,mx*1.15+0.5]),
+    return{q:`Функция ${N(label)} на отрезке ${N('['+MN(p)+'; '+MN(q)+']')}. Найдите наибольшее и наименьшее значения.`,extra:plot(f,[[p,f(p)],[q,f(q)]],[Math.min(p,0)-0.5,q+0.5],[Math.min(0,mn)-Math.abs(mx-mn)*0.1-0.5,mx*1.15+0.5]),
      fields:[num('наибольшее',r2(mx,4)),num('наименьшее',r2(mn,4))],hints:['Посчитай значения на концах отрезка.',t==='ax²'?'Если отрезок проходит через x = 0, проверь и вершину: y(0) = 0.':'Функция на этом отрезке монотонна — экстремумы на концах.'],
-     sol:cand.map(x=>`y(${x}) = ${F(f(x),3)}`).concat([`наиб. ${F(mx,3)}, наим. ${F(mn,3)}`])}},
+     sol:cand.map(x=>`y(${MN(x)}) = ${F(f(x),3)}`).concat([`наиб. ${F(mx,3)}, наим. ${F(mn,3)}`])}},
   'Возрастает или убывает':()=>{const t=pick(['k/x','kx','ax²','ax³','−kx']);let f,label,p=ri(1,3),q=p+ri(2,4),ans;
     if(t==='k/x'){const c=pick([6,12]);f=x=>c/x;label=`y = ${c}/x`;ans='убывает'}else if(t==='kx'){const c=ri(2,5);f=x=>c*x;label=`y = ${c}x`;ans='возрастает'}else if(t==='ax²'){const c=pick([1,2]);f=x=>c*x*x;if(Math.random()<.5){p=-q;q=-1}label=`y = ${c===1?'':c}x²`;ans=q<=0?'убывает':'возрастает'}else if(t==='ax³'){f=x=>x**3;label='y = x³';ans='возрастает'}else{const c=ri(2,4);f=x=>-c*x;label=`y = −${c}x`;ans='убывает'}
-    return{q:`Функция ${N(label)} на отрезке ${N('['+p+'; '+q+']')} возрастает или убывает?`,fields:[choice('',['возрастает','убывает'],ans)],hints:['Посчитай y на левом и на правом конце.','Если y справа больше — возрастает.'],sol:[`y(${p}) = ${F(f(p),2)}, y(${q}) = ${F(f(q),2)} → ${ans}`]}}
+    return{q:`Функция ${N(label)} на отрезке ${N('['+MN(p)+'; '+MN(q)+']')} возрастает или убывает?`,fields:[choice('',['возрастает','убывает'],ans)],hints:['Посчитай y на левом и на правом конце.','Если y справа больше — возрастает.'],sol:[`y(${MN(p)}) = ${F(f(p),2)}, y(${MN(q)}) = ${F(f(q),2)} → ${ans}`]}}
  }},
 {id:'midA',wk:'н7',title:'Мидтерм: часть A',lead:'Задачи A1–A6: настоящие из вариантов α и β и такие же по мотивам, с другими числами. Выбери номер в списке или решай подряд.',
  formulas:[['a × 10<sup>n</sup>, 1 ≤ a &lt; 10','две значащие: 2,0 × 10<sup>7</sup> — ноль пишем'],['площадь An = 1 : 2<sup>n</sup> м²','A0 = 1 м²'],['a<sup>m/n</sup> = (<sup>n</sup>√a)<sup>m</sup>; a<sup>−1</sup> = 1/a',''],['δ = Δ : a × 100 %','границы: a − Δ … a + Δ'],['масштаб 1 : k → площадь × k²','краска идёт на площадь'],['y = ax²: x × 2 → y × 4','a — подставь точку']],
@@ -401,13 +435,13 @@ const TOPICS=[
      fields:[num('',r2(top*v.price,2),{tol:v.s==='β'?2.01:0.01,unit:'сом',show:F(top*v.price,2),traps:[[S*v.price,'Закупаем по наибольшей площади: S + ΔS, а не по S.']]})],hints:[`Наибольшая площадь: ${fx(S)} + ${F(v.dS)}.`,`Умножь на ${v.price}.`],
      sol:[`${fx(S)} + ${F(v.dS)} = ${fx(top)} м²`,`${F(top)} × ${v.price} = ${F(top*v.price,2)} сом`]}},
   'B4 · Увеличение в k раз':(pre)=>{const [v,w]=pre||mb();const P=2*(v.a+v.b),S=v.a*v.b;
-    return{q:`${src(v.s,w.c)}${w.title}: размеры ${w.gen} — ${N(fx(v.a)+' × '+fx(v.b)+' м')}. Заказчик попросил ${w.acc} той же формы, но все размеры увеличить в ${N(F(v.kk)+' раза')}. Во сколько раз вырастет длина ${w.edgeG}? Во сколько раз — площадь ${w.matG}? Найдите длину ${w.edgeG} и площадь ${w.matG} для ${w.newg}.`,extra:expl(w),
-     fields:[num('край в',v.kk,{unit:'раза'}),num('площадь в',v.kk**2,{unit:'раза'}),num('длина',P*v.kk,{unit:'м',traps:[[P,'Это длина для старого изделия — умножь на k.'],[P*v.kk**2,'Край — это длина: растёт в k раз, а не в k².']]}),num('площадь',S*v.kk**2,{tol:0.0051,unit:'м²',show:F(S*v.kk**2,3),traps:[[S*v.kk,'Площадь растёт в k² раз, а не в k.'],[S,'Это площадь старого изделия — умножь на k².']]})],
+    return{q:`${src(v.s,w.c)}${w.title}: размеры ${w.gen} — ${N(fx(v.a)+' × '+fx(v.b)+' м')}. Заказчик попросил ${w.acc} той же формы, но все размеры увеличить в ${N(F(v.kk)+' '+RAZ(v.kk))}. Во сколько раз вырастет длина ${w.edgeG}? Во сколько раз — площадь ${w.matG}? Найдите длину ${w.edgeG} и площадь ${w.matG} для ${w.newg}.`,extra:expl(w),
+     fields:[num('край в',v.kk,{unit:RAZ(v.kk)}),num('площадь в',v.kk**2,{unit:RAZ(v.kk**2)}),num('длина',P*v.kk,{unit:'м',traps:[[P,'Это длина для старого изделия — умножь на k.'],[P*v.kk**2,'Край — это длина: растёт в k раз, а не в k².']]}),num('площадь',S*v.kk**2,{tol:0.0051,unit:'м²',show:F(S*v.kk**2,3),traps:[[S*v.kk,'Площадь растёт в k² раз, а не в k.'],[S,'Это площадь старого изделия — умножь на k².']]})],
      hints:[`${w.edge[0].toUpperCase()+w.edge.slice(1)} идёт по краю — это длина: растёт в k раз. Площадь — в k² раз.`,`Периметр сейчас: 2 × (${fx(v.a)} + ${fx(v.b)}).`],
      sol:[`край × ${F(v.kk)}, площадь × ${F(v.kk)}² = × ${F(v.kk**2)}`,`P = 2 × (${fx(v.a)} + ${fx(v.b)}) = ${F(P,1)} м → ${F(P,1)} × ${F(v.kk)} = ${F(P*v.kk,1)} м`,`S = ${F(S)} м² → ${F(S)} × ${F(v.kk**2)} = ${F(S*v.kk**2,3)} м²`]}},
   'B5 · Сканирование, DPI':(pre)=>{const [v,w]=pre||mb();const px=v.s1/2.54*v.dpi;
     return{q:`${src(v.s,w.c)}${w.title}. Эскиз ${w.gen} — прямоугольник ${N(v.s1+' × '+v.s2+' см')}. Эскиз сканируют с разрешением ${N(v.dpi+' DPI')}. Сколько пикселей по длинной стороне эскиза? Округлите в нужную сторону.`,
-     fields:[num('',Math.ceil(px),{unit:'px',exact:px,up:true,traps:[[v.s1*v.dpi,'DPI — точек на дюйм. Сначала переведи сантиметры в дюймы: : 2,54.']]})],hints:['DPI — точек на дюйм. 1 дюйм = 2,54 см.',`${v.s1} : 2,54 × ${v.dpi}. Пикселей должно хватить — округляй вверх.`],
+     fields:[num('',Math.ceil(px),{unit:'px',exact:px,up:true,traps:[[v.s1*v.dpi,'DPI — точек на дюйм. Сначала переведи сантиметры в дюймы — раздели на 2,54.']]})],hints:['DPI — точек на дюйм. 1 дюйм = 2,54 см.',`${v.s1} : 2,54 × ${v.dpi}. Пикселей должно хватить — округляй вверх.`],
      sol:[`${v.s1} : 2,54 = ${F(v.s1/2.54,3)} дюйма`,`${F(v.s1/2.54,3)} × ${v.dpi} = ${F(px,2)} → ${Math.ceil(px)} px`]}}
  }},
 {id:'pct',wk:'н8',title:'Процент как множитель',lead:'Проценты не складываются — они перемножаются.',
@@ -429,7 +463,7 @@ const TOPICS=[
      hints:[`Себестоимость = ${F(M,0)} + ${h} × ${r} = ${F(C,0)}.`,`Цена × ${F(1+m/100,2)}; на руки × 0,96; прибыль = на руки − себестоимость.`],
      sol:[`себестоимость ${F(C,0)}`,`цена ${F(C,0)} × ${F(1+m/100,2)} = ${F(P,2)}`,`на руки ${F(P,2)} × 0,96 = ${F(H,2)}`,`прибыль ${F(pr,2)} = ${F(pr/C*100,2)} % себестоимости`]}},
   'Наценка → доля в цене':()=>{const n=pick([20,25,30,40,50,60,100]);return{q:`Перекупщик покупает вещь и продаёт её с наценкой ${N(n+' %')} к цене покупки. Сколько процентов от цены продажи составляет его заработок? Округлите до целых, десятых или сотых — как удобно.`,fields:[num('',n/(100+n)*100,{flex:true,unit:'%',traps:[[n,'Наценка считается от цены покупки, а доля — от цены продажи.']]})],hints:['Возьми себестоимость 100. Какой будет цена?',`Заработок ${n} из ${100+n}.`],sol:[`${n} : ${100+n} × 100 % = ${F(n/(100+n)*100,2)} %`]}},
-  'Доля в цене → наценка':()=>{const d=pick([10,15,20,25,30,40]);return{q:`Галерея забирает ${N(d+' %')} от цены продажи, остальное получает автор. На сколько процентов цена продажи больше суммы, которую получает автор? Округлите до целых, десятых или сотых — как удобно.`,fields:[num('',d/(100-d)*100,{flex:true,unit:'%',traps:[[d,'Доля считается от цены продажи, а наценка — от суммы автора.']]})],hints:['Цена продажи 100: галерея — d, вам — остальное.',`Наценка = ${d} : ${100-d}.`],sol:[`${d} : ${100-d} × 100 % = ${F(d/(100-d)*100,2)} %`]}},
+  'Доля в цене → наценка':()=>{const d=pick([10,15,20,25,30,40]);return{q:`Галерея забирает ${N(d+' %')} от цены продажи, остальное получает автор. На сколько процентов цена продажи больше суммы, которую получает автор? Округлите до целых, десятых или сотых — как удобно.`,fields:[num('',d/(100-d)*100,{flex:true,unit:'%',traps:[[d,'Доля считается от цены продажи, а наценка — от суммы автора.']]})],hints:[`Пусть цена продажи 100 сом: галерея забирает ${d}, автору — ${100-d}.`,`Наценка = ${d} : ${100-d}.`],sol:[`${d} : ${100-d} × 100 % = ${F(d/(100-d)*100,2)} %`]}},
   'Сколько выставить':()=>{const X=ri(5,40)*1000,c=pick([5,8,10,12,15]),t=4;const P=X/((1-c/100)*(1-t/100));return{q:`Нужно получить на руки не меньше ${N(F(X,0)+' сом')}. Площадка забирает ${N(c+' %')} от цены, потом налог ${N(t+' %')} с остатка. Какую цену поставить? Округлите вверх до сома.`,fields:[num('',Math.ceil(P-1e-9),{tol:0.6,unit:'сом',exact:P,up:true,traps:[[X*(1+c/100)*(1+t/100),'Комиссия и налог берутся от цены, а не от суммы на руки: делим на (1 − c)(1 − t).'],[X/(1-(c+t)/100),'Налог берётся с остатка: множители перемножаем, а не проценты складываем.']]})],hints:[`Множители: ${F(1-c/100,2)} и 0,96.`,'Цена = на руки : (произведение множителей), вверх.'],sol:[`${F(X,0)} : (${F(1-c/100,2)} × 0,96) = ${F(X,0)} : ${F((1-c/100)*0.96,4)} = ${F(P,2)} → ${F(Math.ceil(P-1e-9),0)} сом`]}}
  }},
 {id:'compound',wk:'н9',title:'Сложный процент и рассрочка',lead:'Процент каждый раз — от того, что есть сейчас. Рассрочка или копить — зависит от того, как быстро дорожает вещь.',
@@ -514,21 +548,30 @@ const GM={
 for(const id of ['midA','midB']){const T=TOPICS.find(t=>t.id===id);T.orig={...T.gens};for(const k in T.orig){T.gens[k]=()=>Math.random()<1/3?T.orig[k]():GM[k]()}}
 
 /* ---------- state & render ---------- */
-let cur=null, task=null, kindSel='all', hintN=0, tries=0, solved=0, total=0;
+let cur=null, task=null, kindSel='all', hintN=0, tries=0;
+const SCORE={}; // счёт по темам: {id:{solved,total}}, живёт до перезагрузки
+const sc=()=>SCORE[cur.id]??(SCORE[cur.id]={solved:0,total:0});
+const SHORT={std:'Стандартный вид',prog:'Прогрессии',err:'Погрешность',pow:'Степени и корни',scale:'Масштаб и DPI',sim:'Подобие',comp:'Композиция',func:'Функции',midA:'Мидтерм A',midB:'Мидтерм B',pct:'Проценты',smeta:'Смета',compound:'Сложный процент'};
+const SITE='Тренажёр по математике';
 const $=s=>document.querySelector(s);
-function navRender(){ $('#nav').innerHTML=`<button data-id="home" class="${cur?'':'on'}">Главная</button>`+TOPICS.map(t=>`<button data-id="${t.id}" class="${cur&&cur.id===t.id?'on':''}"><span class="wk">${t.wk}</span>${t.title}</button>`).join('') }
+function navRender(){ $('#nav').innerHTML=`<a href="#" data-id="home" class="${cur?'':'on'}"${cur?'':' aria-current="page"'}>Главная</a>`+TOPICS.map(t=>{const on=cur&&cur.id===t.id;return `<a href="#${t.id}" data-id="${t.id}" title="${t.title}" class="${on?'on':''}"${on?' aria-current="page"':''}><span class="wk">${t.wk}</span>${SHORT[t.id]||t.title}</a>`}).join('') }
+/* навигация: каждая тема — своя запись в истории, «Назад» возвращает к прошлой теме */
+const plainClick=e=>!(e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey);
+function go(id){ if(id==='home'){ if(location.hash) history.pushState(null,'',location.pathname+location.search); setHome() } else { if(location.hash!=='#'+id) history.pushState(null,'','#'+id); setTopic(id) } }
+function route(){ const id=location.hash.slice(1); if(TOPICS.some(t=>t.id===id)){ if(!cur||cur.id!==id) setTopic(id) } else { if(id) history.replaceState(null,'',location.pathname+location.search); if(cur||!$('#main .hero')) setHome() } }
 function setHome(){
-  cur=null; navRender();
+  cur=null; navRender(); $('#nav').scrollLeft=0; document.title=SITE;
   const types=TOPICS.reduce((s,t)=>s+Object.keys(t.gens).length,0), reg=TOPICS.filter(t=>!t.id.startsWith('mid'));
-  let last='';try{const id=localStorage.getItem('trainer-topic');const t=TOPICS.find(x=>x.id===id);if(t)last=`<button class="btn" data-go="${t.id}">Продолжить: ${t.title}</button>`}catch(e){}
-  const card=t=>`<button class="tcard${t.id.startsWith('mid')?' mid':''}" data-go="${t.id}"><span class="wk">${t.id.startsWith('mid')?'Мидтерм':'Неделя '+t.wk.replace('н','')}</span><b>${t.title}</b><span class="n">${pl(Object.keys(t.gens).length,['тип задач','типа задач','типов задач'])}${MAT[t.id]?' · материалы занятий':''}</span></button>`;
+  let last='';try{const id=localStorage.getItem('trainer-topic');const t=TOPICS.find(x=>x.id===id);if(t)last=`<a class="btn primary" href="#${t.id}" data-go="${t.id}">Продолжить: ${t.title}</a>`}catch(e){}
+  const midCls=last?'btn':'btn primary';
+  const card=t=>`<a class="tcard${t.id.startsWith('mid')?' mid':''}" href="#${t.id}" data-go="${t.id}"><span class="wk">${t.id.startsWith('mid')?'Мидтерм':'Неделя '+t.wk.replace('н','')}</span><b>${t.title}</b><span class="n">${pl(Object.keys(t.gens).length,['тип задач','типа задач','типов задач'])}${MAT[t.id]?' · материалы занятий':''}</span></a>`;
   $('#main').innerHTML=`
   <section class="hero">
     <div><div class="eyebrow">1 курс · математика</div>
       <h2>Тренажёр: решай, проверяй, разбирайся</h2>
       <p>Здесь собраны все темы курса. По каждой теме — тренажёр, формулы, частые ошибки и ссылки на материалы занятий.</p>
       <p>Можно повторить конкретную тему или готовиться к мидтерму и дополнительной работе по нему.</p>
-      <div class="cta"><button class="btn primary" data-go="midA">Мидтерм: часть A</button><button class="btn primary" data-go="midB">Мидтерм: часть B</button>${last}</div>
+      <div class="cta">${last}<a class="${midCls}" href="#midA" data-go="midA">Мидтерм: часть A</a><a class="${midCls}" href="#midB" data-go="midB">Мидтерм: часть B</a></div>
     </div>
     <div class="me" role="img" aria-label="Айдар Султанович с табличкой-приветствием">${buddySVG('hello')}</div>
   </section>
@@ -559,24 +602,23 @@ function setHome(){
   </div>
   <section style="display:grid;gap:10px"><h3 class="sec">Мидтерм</h3><div class="tgrid">${TOPICS.filter(t=>t.id.startsWith('mid')).map(card).join('')}</div>
     <h3 class="sec">Темы по неделям</h3><div class="tgrid">${reg.map(card).join('')}</div></section>
-  <p class="lead" style="font-size:.9em">Счётчик «Решено» живёт, пока открыта страница: после перезагрузки он обнуляется. Тренажёр — для практики, в оценку он не идёт.</p>`;
-  $('#main').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>setTopic(b.dataset.go));
-  if(location.hash) history.replaceState(null,'',location.pathname+location.search);
+  <p class="lead" style="font-size:.9em">Счётчик «Решено» ведётся по каждой теме отдельно и живёт, пока открыта страница: после перезагрузки он обнуляется. Тренажёр — для практики, в оценку он не идёт.</p>`;
+  $('#main').querySelectorAll('[data-go]').forEach(b=>b.onclick=e=>{if(!plainClick(e))return;e.preventDefault();go(b.dataset.go)});
   window.scrollTo(0,0);
 }
-const PRAISE=['Найс!','Зачёт!','Шаришь!','Cool!','Perfecto!','Awesome!','Баракелде!','Жакшы!','Азамат!','Сонун!','Керемет!','Чебер!','Кыйын!'];let buddyT,praiseBag=[],lastPraise='';
+const PRAISE=['Найс!','Зачёт!','Шаришь!','Cool!','Perfecto!','Awesome!','Баракелде!','Жакшы!','Азамат!','Сонун!','Керемет!','Чебер!','Кыйын!'];let buddyT,lastPraise='';
 function nextPraise(){let p;do{p=pick(PRAISE)}while(p===lastPraise);return lastPraise=p}
 function buddyPop(){const b=$('#buddy');if(!b.querySelector('svg'))b.insertAdjacentHTML('beforeend',buddySVG());$('#buddysay').textContent=nextPraise();b.classList.add('on');clearTimeout(buddyT);buddyT=setTimeout(()=>b.classList.remove('on'),2200)}
 function setTopic(id){
-  cur=TOPICS.find(t=>t.id===id)||TOPICS[0]; kindSel='all'; navRender();
-  window.scrollTo(0,0); const b=$('#nav button.on'); if(b) b.scrollIntoView({block:'nearest',inline:'center'});
+  cur=TOPICS.find(t=>t.id===id)||TOPICS[0]; kindSel='all'; navRender(); document.title=`${cur.title} — ${SITE}`;
+  window.scrollTo(0,0); const b=$('#nav a.on'), nv=$('#nav'); if(b) nv.scrollLeft=b.offsetLeft-(nv.clientWidth-b.offsetWidth)/2;
   const kinds=Object.keys(cur.gens);
   $('#main').innerHTML=`
   <section><div class="eyebrow">Неделя ${cur.wk.replace('н','')}</div><h2 class="tt">${cur.title}</h2><p class="lead">${cur.lead}</p></section>
   ${matHTML(cur.id)}
   <div class="cols">
     <div class="panel"><h3>Формулы</h3>${cur.formulas.map(([f,n])=>`<div class="f">${f}</div>${n?`<p class="fnote">${n}</p>`:''}`).join('')}</div>
-    <div class="panel"><h3>Частые ошибки</h3><ul class="err">${cur.mistakes.map(([a,b])=>`<li><b>${a}.</b> ${b}</li>`).join('')}</ul></div>
+    <div class="panel"><h3>Частые ошибки</h3><ul class="err">${cur.mistakes.map(([a,b])=>`<li><b>${a}.</b> ${b.charAt(0).toUpperCase()+b.slice(1)}</li>`).join('')}</ul></div>
   </div>
   <section class="card" aria-live="polite">
     <div class="cardhead"><span class="eyebrow">Тренажёр</span>
@@ -586,7 +628,6 @@ function setTopic(id){
   </section>`;
   $('#kind').onchange=e=>{kindSel=e.target.value;newTask()};
   try{localStorage.setItem('trainer-topic',cur.id)}catch(e){}
-  if(location.hash!=='#'+cur.id) history.replaceState(null,'','#'+cur.id);
   newTask();
 }
 function newTask(){
@@ -599,14 +640,15 @@ function renderTask(){
    <div class="eyebrow" style="color:var(--muted);margin-bottom:6px">${t.kind}</div>
    <p class="q">${t.q}</p>${t.extra||''}
    <div class="fields" style="margin-top:12px">${t.fields.map((f,i)=>f.kind==='num'
-     ?`<div class="field" id="fw${i}"><label for="f${i}">${f.label||'Ответ'}</label><input id="f${i}" inputmode="decimal" autocomplete="off"><span class="unit">${f.unit||''}</span></div>`
+     ?`<div class="field" id="fw${i}"><label for="f${i}">${f.label||'Ответ'}</label><input id="f${i}" inputmode="${String(f.show).includes('/')?'text':'decimal'}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"><button type="button" class="pm" data-i="${i}" aria-label="Сменить знак: плюс или минус">±</button><span class="unit">${f.unit||''}</span></div>`
      :`<div class="field" id="fw${i}"><label>${f.label||'Ответ'}</label><div class="seg" id="f${i}">${f.opts.map(o=>`<button type="button" data-v="${o}">${o}</button>`).join('')}</div></div>`).join('')}</div>
    <div class="actions"><button class="btn primary" id="check">Проверить</button><button class="btn" id="hint">Подсказка</button><button class="btn" id="solbtn" disabled>Решение</button><button class="btn" id="next">Новая задача</button></div>
    <p class="msg" id="msg"></p><div class="tip" id="tip" hidden></div><div class="hints" id="hints"></div><div id="sol"></div>`;
   t.fields.forEach((f,i)=>{ if(f.kind==='choice'){ $('#f'+i).onclick=e=>{const b=e.target.closest('button');if(!b)return;[...$('#f'+i).children].forEach(x=>x.classList.toggle('sel',x===b));f.val=b.dataset.v;$('#fw'+i).classList.remove('ok','no')} }
     else { $('#f'+i).addEventListener('keydown',e=>{if(e.key==='Enter')check()}); $('#f'+i).addEventListener('input',()=>$('#fw'+i).classList.remove('ok','no')) } });
+  document.querySelectorAll('#task .pm').forEach(b=>b.onclick=()=>{const inp=$('#f'+b.dataset.i);let v=inp.value.trim();inp.value=/^[-−]/.test(v)?v.replace(/^[-−]\s*/,''):'-'+v;$('#fw'+b.dataset.i).classList.remove('ok','no');inp.focus()});
   $('#check').onclick=check; $('#next').onclick=newTask; $('#hint').onclick=showHint; $('#solbtn').onclick=showSol;
-  updScore(); const first=$('#f0'); if(first&&first.tagName==='INPUT'&&!matchMedia('(pointer:coarse)').matches) first.focus();
+  updScore(); const first=$('#f0'); if(first&&first.tagName==='INPUT'&&!matchMedia('(pointer:coarse)').matches) first.focus({preventScroll:true});
 }
 function diag(f,inp,v){
   const d=Math.min(decOf(inp),6), ex=f.exact??f.ans, near=(a,b)=>Math.abs(a-b)<=Math.max(0.5*10**-d,1e-6*Math.abs(b))+1e-9;
@@ -621,26 +663,33 @@ function diag(f,inp,v){
   return null;
 }
 function check(){
-  let all=true, any=false; const tips=[];
-  task.fields.forEach((f,i)=>{let ok;
-    if(f.kind==='num'){const v=parseAns($('#f'+i).value); if(isNaN(v)){ok=false}else{any=true; ok=f.flex?Math.abs(v-f.ans)<=0.5*10**-Math.min(decOf($('#f'+i).value),6)+1e-9:Math.abs(v-f.ans)<=f.tol+1e-9; if(!ok){const t=diag(f,$('#f'+i).value,v); if(t&&!tips.includes(t))tips.push(t)}}}
-    else {if(f.val)any=true; ok=f.val===f.ans}
-    $('#fw'+i).classList.toggle('ok',ok); $('#fw'+i).classList.toggle('no',!ok); if(!ok)all=false;});
+  let all=true, any=false, empty=0, wrong=0; const tips=[];
+  const NOTNUM='Впиши только число — без единиц и букв. Дробь пиши так: 1/64.';
+  task.fields.forEach((f,i)=>{let ok=null;
+    if(f.kind==='num'){const raw=$('#f'+i).value.trim(), v=parseAns(raw);
+      if(!raw){empty++}
+      else if(isNaN(v)){any=true; ok=false; if(!tips.includes(NOTNUM))tips.push(NOTNUM)}
+      else{any=true; ok=f.flex?Math.abs(v-f.ans)<=0.5*10**-Math.min(decOf(raw),6)+1e-9:Math.abs(v-f.ans)<=f.tol+1e-9; if(!ok){const t=diag(f,raw,v); if(t&&!tips.includes(t))tips.push(t)}}}
+    else {if(f.val){any=true; ok=f.val===f.ans}else empty++}
+    // пустое поле не красим: оно не неверное, а незаполненное
+    $('#fw'+i).classList.toggle('ok',ok===true); $('#fw'+i).classList.toggle('no',ok===false);
+    if(ok!==true)all=false; if(ok===false)wrong++;});
   const m=$('#msg'), tp=$('#tip');
   if(tips.length&&any){tp.innerHTML=tips.map(t=>`<p>${t}</p>`).join('');tp.hidden=false}else{tp.hidden=true;tp.innerHTML=''}
-  if(!any){m.className='msg no';m.textContent='Впиши ответ в поле.';return}
+  if(!any){m.className='msg no';m.textContent=task.fields.length>1?'Впиши ответы в поля.':'Впиши ответ в поле.';return}
+  if(empty&&!wrong){m.className='msg no';m.textContent='Пока всё верно. Заполни остальные поля.';return}
   tries++; $('#solbtn').disabled=false;
-  if(!task.counted){task.counted=true;total++}
-  if(all){ m.className='msg ok'; m.textContent='Верно!'; buddyPop(); if(!task.done){task.done=true;solved++} }
-  else { m.className='msg no'; m.textContent=tries===1?'Неверно. Проверь ход решения или возьми подсказку.':'Пока неверно. Можно открыть решение.'; }
+  const s=sc(); if(!task.counted){task.counted=true;s.total++}
+  if(all){ m.className='msg ok'; m.textContent='Верно!'; if(!task.done){task.done=true;s.solved++;buddyPop()} }
+  else { m.className='msg no'; m.textContent=(tries===1?'Неверно. Проверь ход решения или возьми подсказку.':'Пока неверно. Можно открыть решение.')+(empty?' И заполни пустые поля.':''); }
   updScore();
 }
 function showHint(){ if(hintN<task.hints.length){ $('#hints').insertAdjacentHTML('beforeend',`<div class="hint"><b>Подсказка ${hintN+1}.</b> ${task.hints[hintN]}</div>`); hintN++ } if(hintN>=task.hints.length){$('#hint').disabled=true;$('#solbtn').disabled=false} }
-function showSol(){ $('#sol').innerHTML=`<div class="sol"><b>Решение</b>${task.sol.map(s=>`<p>${s}</p>`).join('')}<p>Ответ: ${task.fields.map(f=>(f.label?f.label+' ':'')+f.show+(f.unit&&f.kind==='num'&&!String(f.show).includes(f.unit)?' '+f.unit:'')).join('; ')}</p></div>`; task.done=true; if(!task.counted){task.counted=true;total++} $('#solbtn').disabled=true; updScore() }
-function updScore(){ $('#score').textContent=total?`Решено: ${solved} из ${total}`:'' }
-$('#nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;b.dataset.id==='home'?setHome():setTopic(b.dataset.id)};
-window.addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(!TOPICS.some(t=>t.id===id)){if(cur)setHome()}else if(!cur||id!==cur.id)setTopic(id)});
+function showSol(){ $('#sol').innerHTML=`<div class="sol"><b>Решение</b>${task.sol.map(s=>`<p>${s}</p>`).join('')}<p>Ответ: ${task.fields.map(f=>(f.label&&f.label!=='Ответ'?f.label+' ':'')+f.show+(f.unit&&f.kind==='num'&&!String(f.show).includes(f.unit)?' '+f.unit:'')).join('; ')}</p></div>`; task.done=true; if(!task.counted){task.counted=true;sc().total++} $('#solbtn').disabled=true; updScore() }
+function updScore(){ const s=sc(); $('#score').textContent=s.total?`Решено в теме: ${s.solved} из ${s.total}`:'' }
+$('#nav').onclick=e=>{const b=e.target.closest('a[data-id]');if(!b||!plainClick(e))return;e.preventDefault();go(b.dataset.id)};
+window.addEventListener('popstate',route);
 $('#bigbtn').onclick=()=>{const on=document.documentElement.classList.toggle('big');$('#bigbtn').setAttribute('aria-pressed',on);try{localStorage.setItem('trainer-big',on?'1':'')}catch(e){}};
 try{if(localStorage.getItem('trainer-big')){document.documentElement.classList.add('big');$('#bigbtn').setAttribute('aria-pressed','true')}}catch(e){}
-{const start=location.hash.slice(1); TOPICS.some(t=>t.id===start)?setTopic(start):setHome();}
+route();
 </script>
