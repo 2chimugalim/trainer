@@ -142,8 +142,20 @@ a.btn{display:inline-block;text-decoration:none}
 .hero p{margin:0 0 10px;max-width:60ch}
 .hero .cta{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px}
 .hero .me{position:relative;width:300px;align-self:end}
-.hero .me svg{width:300px;height:auto;display:block}
-@media (max-width:640px){.hero{grid-template-columns:1fr}.hero .me{justify-self:center;width:100%;max-width:300px}.hero .me svg{width:100%}}
+.hero .me>svg{width:300px;height:auto;display:block}
+/* секретное послание: облачко над головой, рот открывается и закрывается */
+.hero .me{-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.hero .me .mc{visibility:hidden}
+.hero .me.shut .mc{visibility:visible}
+.hero .me.shut .mo{visibility:hidden}
+.hero .me .ec{visibility:hidden}
+.hero .me.wink .ec{visibility:visible}
+.hero .me.wink .eo{visibility:hidden}
+.hero .me .say{position:absolute;left:0;bottom:calc(100% - 4px);z-index:2;width:max-content;max-width:min(300px,calc(100vw - 72px));
+  background:var(--surface);color:var(--ink);border:2px solid var(--ink);border-radius:12px;padding:7px 12px;font-weight:700;line-height:1.3;pointer-events:none}
+.hero .me .say[hidden]{display:none}
+.hero .me .say svg{position:absolute;left:30px;top:calc(100% - 2px);width:20px;height:36px;overflow:visible}
+@media (max-width:640px){.hero{grid-template-columns:1fr}.hero .me{justify-self:center;width:100%;max-width:300px;margin-top:64px}.hero .me>svg{width:100%}}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .stat b{display:block;font-size:1.7em;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -233,9 +245,19 @@ const expl=w=>`<p class="fnote" style="margin:0">${w.expl} Изделие — п
 /* ---------- pixel buddy ---------- */
 const SPRS={"smile":["......KKKKKKKK","....KKHHHHHHHHKK","...KHHHHhHHHHhHHK","..KHHHHHHHHHHHHHHK","..KHHHSSSSSSSSHHHK","..KhHSSSSSSSSSSHhK","..KhSSSSSSSSSSSShK","..KSSGGGSSSSGGGSSK",".KGGGSESGGGGSESGGGK",".KsSGESEGSSGESEGSsK",".KsSSGGGSSSSGGGSSsK","..KSpSSSSssSSSSpSKL","..KSSSBBBBBBBBSSSKL","..KSBBKWWWWWWKBBSK","..KBBBBKMMMMKBBBBK","...KBBBBKKKKBBBBK","....KBBBBBBBBBBK",".....KKbbbbbbKK","...KKXXKSSSSKXXKK","..KXXXXXKSSKXXXXXK",".KXXXXXXLXXLXXXXXXK","KXXXXXXXXLLXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK"],"hello":[[".....................KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCCCCKCKCKKKCKCCCKCCCCKCCCCCCCCCCCCCK",".....................KCCCCCCCCCCKCKCKCCCKCCCKCCCKCKCCCCCCCCCCCCK",".....................KCCCCCCCCCCKKKCKKCCKCCCKCCCKCKCCCCCCCCCCCCK",".....................KCCCCCCCCCCKCKCKCCCKCCCKCCCKCKCKCCCCCCCCCCK",".....................KCCCCCCCCCCKCKCKKKCKKKCKKKCCKCCKCCCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","......KKKKKKKK.......KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","....KKHHHHHHHHKK.....KCCCCCCCKKCKKCCKKKCCKCCKKKCCKCCKKCCKCCCCCCK","...KHHHHhHHHHhHHK....KCCCCCCKCCCKCKCKCCCKCKCCKCCKCKCKCKCKCCCCCCK","..KHHHHHHHHHHHHHHK...KCCCCCCKCCCKKCCKKCCKKKCCKCCKCKCKKCCKCCCCCCK","..KHHHSSSSSSSSHHHK...KCCCCCCKCCCKCKCKCCCKCKCCKCCKCKCKCKCCCCCCCCK","..KhHSSSSSSSSSSHhK...KCCCCCCCKKCKCKCKKKCKCKCCKCCCKCCKCKCKCCCCCCK","..KhSSSSSSSSSSSShK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","..KSSGGGSSSSGGGSSK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".KGGGSESGGGGSESGGGK..KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".KsSGESEGSSGESEGSsK.........KbK",".KsSSGGGSSSSGGGSSsK........KKKK","..KSpSSSSssSSSSpSKL.......KSSSSK","..KSSSBBBBBBBBSSSKL.......KSsSSK","..KSBBKWWWWWWKBBSK........KSSSSK","..KBBBBKMMMMKBBBBK.........KKKK","...KBBBBKKKKBBBBK........KXXXXXK","....KBBBBBBBBBBK.......KXXXXXK",".....KKbbbbbbKK......KXXXXXK","...KKXXKSSSSKXXKK..KXXXXXK","..KXXXXXKSSKXXXXXKXXXXXK",".KXXXXXXLXXLXXXXXXXXXK","KXXXXXXXXLLXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK"],[".....................KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCCCCKKCCKCCCKKCCKCCKCCCKCCCCCCCCCCCK",".....................KCCCCCCCCCKCCCKCKCKCKCKCKCKKCKKCCCCCCCCCCCK",".....................KCCCCCCCCCKCCCKKKCKCKCKKKCKCKCKCCCCCCCCCCCK",".....................KCCCCCCCCCKCCCKCKCKCKCKCKCKCCCKCKCCCCCCCCCK",".....................KCCCCCCCCCCKKCKCKCKCKCKCKCKCCCKCKCCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","......KKKKKKKK.......KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","....KKHHHHHHHHKK.....KCCKCKCKCCKCCKKCCCKCCKKKCKCCCKCCKCCKCKCKCCK","...KHHHHhHHHHhHHK....KCCKCKCKCKCKCKCKCKCKCCKCCKKCKKCKCKCKCKCKCCK","..KHHHHHHHHHHHHHHK...KCCCKKKCCKKKCKKCCKKKCCKCCKCKCKCKKKCKKKCKCCK","..KHHHSSSSSSSSHHHK...KCCKCKCKCKCKCKCCCKCKCCKCCKCCCKCKCKCKCKCCCCK","..KhHSSSSSSSSSSHhK...KCCKCKCKCKCKCKCCCKCKCCKCCKCCCKCKCKCKCKCKCCK","..KhSSSSSSSSSSSShK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","..KSSGGGSSSSGGGSSK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".KGGGSESGGGGSESGGGK..KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".KsSGESEGSSGESEGSsK.........KbK",".KsSSGGGSSSSGGGSSsK........KKKK","..KSpSSSSssSSSSpSKL.......KSSSSK","..KSSSBBBBBBBBSSSKL.......KSsSSK","..KSBBKWWWWWWKBBSK........KSSSSK","..KBBBBKMMMMKBBBBK.........KKKK","...KBBBBKKKKBBBBK........KXXXXXK","....KBBBBBBBBBBK.......KXXXXXK",".....KKbbbbbbKK......KXXXXXK","...KKXXKSSSSKXXKK..KXXXXXK","..KXXXXXKSSKXXXXXKXXXXXK",".KXXXXXXLXXLXXXXXXXXXK","KXXXXXXXXLLXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK"],[".....................KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".....................KCCCCCCCKKKCKKCCKCCKCKKCCKKKCKKKCCCCCCCCCCK",".....................KCCCCCCCKCKCKCKCKCKKCKCKCKCCCCKCCCCCCCCCCCK",".....................KCCCCCCCKCKCKKCCKKCKCKKCCKKCCCKCCCCCCCCCCCK",".....................KCCCCCCCKCKCKCCCKCCKCKCKCKCCCCKCCKCCCCCCCCK",".....................KCCCCCCCKCKCKCCCKCCKCKKCCKKKCCKCCKCCCCCCCCK",".....................KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","......KKKKKKKK.......KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","....KKHHHHHHHHKK.....KCCCCCCKCKCKKCCKKKCCKCCKKKCCKCCKKCCKCCCCCCK","...KHHHHhHHHHhHHK....KCCCCCCKKCCKCKCKCCCKCKCCKCCKCKCKCKCKCCCCCCK","..KHHHHHHHHHHHHHHK...KCCCCCCKCCCKKCCKKCCKKKCCKCCKCKCKKCCKCCCCCCK","..KHHHSSSSSSSSHHHK...KCCCCCCKKCCKCCCKCCCKCKCCKCCKCKCKCCCCCCCCCCK","..KhHSSSSSSSSSSHhK...KCCCCCCKCKCKCCCKKKCKCKCCKCCCKCCKCCCKCCCCCCK","..KhSSSSSSSSSSSShK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK","..KSSGGGSSSSGGGSSK...KCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCK",".KGGGSESGGGGSESGGGK..KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",".KsSGESEGSSGESEGSsK.........KbK",".KsSSGGGSSSSGGGSSsK........KKKK","..KSpSSSSssSSSSpSKL.......KSSSSK","..KSSSBBBBBBBBSSSKL.......KSsSSK","..KSBBKWWWWWWKBBSK........KSSSSK","..KBBBBKMMMMKBBBBK.........KKKK","...KBBBBKKKKBBBBK........KXXXXXK","....KBBBBBBBBBBK.......KXXXXXK",".....KKbbbbbbKK......KXXXXXK","...KKXXKSSSSKXXKK..KXXXXXK","..KXXXXXKSSKXXXXXKXXXXXK",".KXXXXXXLXXLXXXXXXXXXK","KXXXXXXXXLLXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK","KXXXXXXXXXXXXXXXXXXK"]]};
 const PAL={K:'#141412',H:'#E8DFA6',h:'#BFAE72',S:'#E3B48C',s:'#C99670',p:'#E59C86',G:'#4A2E22',E:'#141412',W:'#FFFFFF',M:'#7A2E22',B:'#CDB880',b:'#A8925E',X:'#2C2C2A',L:'#C7CACD',C:'#ACB948'};
+/* закрытый рот для «разговора» на главной: строки 22–24 спрайта hello, первые 18 столбцов */
+const MOUTH_SHUT={22:'..KSBBKBBBBBBKBBSK',23:'..KBBBBKKKKKKBBBBK',24:'...KBBBBBBBBBBBBK'};
+/* подмигивание левым глазом персонажа (на экране — правый глаз): глаз превращается в чёрточку */
+const EYE_SHUT={17:{12:'S',13:'S',14:'S'},18:{12:'E',13:'E',14:'E'}};
 function buddySVG(which='smile'){const S=which==='hello'?pick(SPRS.hello):SPRS.smile;const w=Math.max(...S.map(r=>r.length)),h=S.length;let r='';
-  S.forEach((row,y)=>[...row].forEach((ch,x)=>{if(PAL[ch])r+=`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${PAL[ch]}"/>`}));
-  return `<svg class="px" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
+  const px=(x,y,ch)=>`<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${PAL[ch]}"/>`;
+  const L={mo:'',mc:'',eo:'',ec:''};
+  S.forEach((row,y)=>[...row].forEach((ch,x)=>{
+    const m=which==='hello'&&MOUTH_SHUT[y]&&x<MOUTH_SHUT[y].length?MOUTH_SHUT[y][x]:ch, e=which==='hello'&&EYE_SHUT[y]&&EYE_SHUT[y][x]||ch;
+    if(m!==ch){if(PAL[ch])L.mo+=px(x,y,ch);if(PAL[m])L.mc+=px(x,y,m)}
+    else if(e!==ch){if(PAL[ch])L.eo+=px(x,y,ch);if(PAL[e])L.ec+=px(x,y,e)}
+    else if(PAL[ch])r+=px(x,y,ch)}));
+  return `<svg class="px" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" aria-hidden="true">${r}${Object.entries(L).map(([k,v])=>v?`<g class="${k}">${v}</g>`:'').join('')}</svg>`}
 
 /* ---------- plot ---------- */
 function plot(fn,pts,xr,yr){
@@ -573,7 +595,7 @@ function setHome(){
       <p>Можно повторить конкретную тему или готовиться к мидтерму и дополнительной работе по нему.</p>
       <div class="cta">${last}<a class="${midCls}" href="#midA" data-go="midA">Мидтерм: часть A</a><a class="${midCls}" href="#midB" data-go="midB">Мидтерм: часть B</a></div>
     </div>
-    <div class="me" role="img" aria-label="Айдар Султанович с табличкой-приветствием">${buddySVG('hello')}</div>
+    <div class="me" role="img" aria-label="Айдар Султанович с табличкой-приветствием">${buddySVG('hello')}<div class="say" id="mesay" hidden><span></span><svg viewBox="0 0 20 36" aria-hidden="true"><path d="M1 0 L19 0 L4 34 Z" fill="var(--surface)"/><path d="M1 0 L4 34 L19 0" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/></svg></div></div>
   </section>
   <div class="stats">
     <div class="stat"><b>${TOPICS.length}</b><span>тем: ${reg.length} по неделям и 2 по мидтерму</span></div>
@@ -604,7 +626,56 @@ function setHome(){
     <h3 class="sec">Темы по неделям</h3><div class="tgrid">${reg.map(card).join('')}</div></section>
   <p class="lead" style="font-size:.9em">Счётчик «Решено» ведётся по каждой теме отдельно и живёт, пока открыта страница: после перезагрузки он обнуляется. Тренажёр — для практики, в оценку он не идёт.</p>`;
   $('#main').querySelectorAll('[data-go]').forEach(b=>b.onclick=e=>{if(!plainClick(e))return;e.preventDefault();go(b.dataset.go)});
+  $('.hero .me').onclick=talk;
   window.scrollTo(0,0);
+}
+/* ---------- секретное послание: клик по персонажу на главной ---------- */
+const TALK=(()=>{const s=[], nb=' ';
+  ['Привет!','Ещё раз привет.','Вы правда будете нажимать?','Ладно, жмите.','Знаете, что ещё можно нажимать?','Кнопку «Проверить».','Серьёзно, идите решайте.','…Вы ещё здесь?','Ладно. Раз не уходите — держите советы.'].forEach(t=>s.push([t,t]));
+  // советы: при каждой загрузке страницы — в случайном порядке
+  const tips=[`20${nb}% + 10${nb}% ≠ 30${nb}%. Перемножаем множители: 0,8${nb}×${nb}0,9.`,`+20${nb}%, потом −20${nb}% — это −4${nb}%.`,`10${nb}% три года подряд — это +33,1${nb}%, а не +30${nb}%.`,'Краска идёт на площадь: × k².','Масса растёт в k³.','2¹⁰ = 1024 ≈ 1000. Поэтому в компьютерах «кило» часто = 1024.','Сколько пикселей нужно? Округляем вверх — иначе не хватит.','DPI — точки на дюйм, не на сантиметр.','A5 → A4 → A3: каждый шаг — стороны × √2, площадь × 2.','Забыли φ? Возьмите 13 : 8 — почти то же самое.',`x${nb}% от y = y${nb}% от x.`,
+   `Две значащие — пишем 2,0${nb}×${nb}10⁷, а не 2${nb}×${nb}10⁷.`,'√2 ≈ 1,41, √3 ≈ 1,73 — пригодятся без калькулятора.','Чем меньше предмет, тем больше δ при той же Δ.',`5${nb}% → 8${nb}% — это +3${nb}п.${nb}п., но +60${nb}%.`];
+  for(let i=tips.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[tips[i],tips[j]]=[tips[j],tips[i]]}
+  [...tips,'Всё, советы кончились.'].forEach(t=>s.push([t,t]));
+  s.push(['*насвистывает песенку*','~whistle']); // вместо блипов — свист
+  ['Но Вы не ушли.','Тогда слушайте секрет.'].forEach(t=>s.push([t,t]));
+  // секрет: кусочки добавляются к облачку, с новым предложением облачко очищается
+  [['Если Вы','дочитали','до этого','места,','Вы упорнее','почти всех','креаторов.'],['Подойдите','ко мне','после пары','и тихо','скажите слово','Фисташка.']]
+    .forEach(p=>p.forEach((x,i)=>s.push([p.slice(0,i+1).join(' '),x])));
+  ['С меня презент ;)','Тсс. Это между нами.','Хорошо? :)','Удачи на экзамене! :)'].forEach(t=>s.push([t,t]));
+  return s})();
+let talkI=0, talkT=[], AC=null;
+function blip(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended')AC.resume();
+  const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=440+Math.random()*160;
+  g.gain.setValueAtTime(0.05,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.07);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+0.08)}catch(e){}}
+/* свист: чистый тон с плавными переходами между нотами и лёгким вибрато */
+function whistle(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended')AC.resume();
+  const t0=AC.currentTime+0.02,o=AC.createOscillator(),g=AC.createGain(),lfo=AC.createOscillator(),lg=AC.createGain();
+  o.type='sine'; lfo.frequency.value=6; lg.gain.value=14; lfo.connect(lg); lg.connect(o.frequency);
+  const notes=[[1319,.26],[1568,.26],[1760,.4],[1568,.2],[1397,.2],[1319,.3],[1175,.26],[1319,.55]]; // своя мелодия, ~2,4 с
+  let t=t0; o.frequency.setValueAtTime(notes[0][0],t); g.gain.setValueAtTime(0.0001,t);
+  notes.forEach(([f,d],i)=>{ if(i) o.frequency.setTargetAtTime(f,t,0.025);
+    g.gain.setTargetAtTime(0.06,t,0.02); g.gain.setTargetAtTime(0.035,t+d*0.6,0.04); t+=d });
+  g.gain.setTargetAtTime(0.0001,t,0.05);
+  o.connect(g); g.connect(AC.destination); o.start(t0); lfo.start(t0); o.stop(t+0.3); lfo.stop(t+0.3);
+  return (t-t0)*1000}catch(e){return 1300}}
+function talk(){
+  if(talkI>=TALK.length) return; // после «Удачи на экзамене! :)» персонаж молчит до перезагрузки
+  const [show,said]=TALK[talkI++], me=$('.hero .me'), say=$('#mesay');
+  talkT.forEach(clearTimeout); talkT=[]; me.classList.remove('shut','wink');
+  say.firstChild.textContent=show; say.hidden=false;
+  if(show.startsWith('Тсс')){ // подмигиваем посреди фразы
+    talkT.push(setTimeout(()=>{const n=$('.hero .me');n&&n.classList.add('wink')},350));
+    talkT.push(setTimeout(()=>{const n=$('.hero .me');n&&n.classList.remove('wink')},850)) }
+  if(said==='~whistle'){ // свистим: губы сомкнуты на время мелодии
+    me.classList.add('shut'); const ms=whistle();
+    talkT.push(setTimeout(()=>{const n=$('.hero .me');n&&n.classList.remove('shut')},ms));
+    talkT.push(setTimeout(()=>{const b=$('#mesay');if(b)b.hidden=true},ms+5000)); return }
+  // число «слогов»: по гласным, но не больше 6, чтобы длинные фразы не трещали; пустая реплика — без звука
+  const flaps=said?Math.max(1,Math.min(6,(said.match(/[аеёиоуыэюяaeiou]|\d+/gi)||[]).length)):0, step=170;
+  const flap=()=>{const m=$('.hero .me');if(!m)return;m.classList.add('shut');blip();talkT.push(setTimeout(()=>{const n=$('.hero .me');n&&n.classList.remove('shut')},step/2))};
+  if(flaps) flap(); for(let i=1;i<flaps;i++) talkT.push(setTimeout(flap,i*step));
+  talkT.push(setTimeout(()=>{const b=$('#mesay');if(b)b.hidden=true},flaps*step+5000));
 }
 const PRAISE=['Найс!','Зачёт!','Шаришь!','Cool!','Perfecto!','Awesome!','Баракелде!','Жакшы!','Азамат!','Сонун!','Керемет!','Чебер!','Кыйын!'];let buddyT,lastPraise='';
 function nextPraise(){let p;do{p=pick(PRAISE)}while(p===lastPraise);return lastPraise=p}
