@@ -443,7 +443,7 @@ footer .fbline{color:var(--ink)}
 .rcard.fin.open .cn,.rcard.fin.open .ct{color:#141412}
 svg.plan{display:block}
 @media (max-width:560px){nav.topics .nlong{display:none}}
-@media (max-width:400px){nav.topics{flex-wrap:wrap}}
+@media (max-width:560px){nav.topics{flex-wrap:wrap}}
 </style>
 
 <div class="wrap">
@@ -486,7 +486,7 @@ function parseAns(s){
   const m=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);if(m)return parseFloat(m[1])/parseFloat(m[2]);
   return /^-?\d*\.?\d+(e[-+]?\d+)?$/i.test(s)?parseFloat(s):NaN; // 1,79E+07 — запись калькулятора
 }
-const num=(label,ans,o={})=>({kind:'num',label,ans,tol:o.tol??1e-6,unit:o.unit||'',flex:!!o.flex,show:o.show??F(ans,o.flex?2:4),traps:o.traps||[],exact:o.exact,up:!!o.up,frac:!!o.frac,sig:o.sig,stdA:!!o.stdA,whole:!!o.whole}); // sig: ровно столько значащих цифр; stdA: поле a стандартного вида; whole: нужно точное целое (пиксели) // frac: ответ нужен долей, знак % не принимаем
+const num=(label,ans,o={})=>({kind:'num',label,ans,tol:o.tol??1e-6,unit:o.unit||'',flex:!!o.flex,show:o.show??F(ans,o.flex?2:4),traps:o.traps||[],exact:o.exact,up:!!o.up,frac:!!o.frac,sig:o.sig,stdA:!!o.stdA,whole:!!o.whole,alt:o.alt,part:o.part}); // sig: ровно столько значащих цифр; stdA: поле a стандартного вида; whole: нужно точное целое (пиксели) // frac: ответ нужен долей, знак % не принимаем
 const sigOf=s=>{s=String(s).trim().replace(/[\s  ]/g,'').replace(/,/g,'.').replace(/^[-−+]/,'').split(/e/i)[0];return s.replace('.','').replace(/^0+/,'').length}; // сколько значащих цифр вписано
 const decOf=s=>{s=String(s).replace(/,/g,'.');if(s.includes('/'))return 6;const m=s.match(/\.(\d+)/);return m?m[1].length:0};
 const choice=(label,opts,ans)=>({kind:'choice',label,opts,ans,show:ans});
@@ -1329,7 +1329,7 @@ const navLink=(id,label,on,extra='')=>`<a href="${id==='home'?'#':'#'+id}" data-
 /* темы в меню «Темы»: группы по неделям, мидтерм — отдельной группой */
 const topicGroups=()=>{const g=[];TOPICS.forEach(t=>{const h=t.id.startsWith('mid')?'Мидтерм':'Неделя '+t.wk.replace('н','');let x=g.find(y=>y[0]===h);if(!x)g.push(x=[h,[]]);x[1].push(t)});return g};
 function navRender(){ const tp=page==='topic'&&cur;
-  $('#nav').innerHTML=navLink('home','Главная',page==='home')+navLink('exam','Мини-мидтерм',page==='exam')+navLink('chain','Сквозная<span class="nlong"> задача</span>',page==='chain')+navLink('mix','Микс',page==='mix')
+  $('#nav').innerHTML=navLink('home','Главная',page==='home')+navLink('exam','Мини-мидтерм',page==='exam')+navLink('chain','Сквозная<span class="nlong"> задача</span>',page==='chain')+navLink('final','Экзамен',page==='final')+navLink('mix','Микс',page==='mix')
   +`<button type="button" class="tmenu${tp?' on':''}" id="tmbtn" aria-expanded="false" aria-controls="tmenu"><span class="tl">Темы</span>${tp?`<span class="tcur"><span class="wk">${cur.wk}</span>${SHORT[cur.id]||cur.title}</span>`:''}<span class="car" aria-hidden="true">▾</span></button>`
   +`<div class="tpanel" id="tmenu" hidden>${topicGroups().map(([h,ts])=>`<div class="tgrp"><b>${h}</b>${ts.map(t=>navLink(t.id,SHORT[t.id]||t.title,tp&&cur.id===t.id,` title="${t.title}"`)).join('')}</div>`).join('')}</div>`;
   // «О тренажёре» и «Печать» живут в шапке — подсвечиваем открытую
@@ -1339,11 +1339,14 @@ function centerNav(){ const b=$('#nav a.on'), nv=$('#nav'); if(b) nv.scrollLeft=
 window.addEventListener('resize',()=>document.documentElement.style.setProperty('--navh',$('#nav').offsetHeight+'px'));
 /* навигация: каждая страница — своя запись в истории, «Назад» возвращает к прошлой */
 const plainClick=e=>!(e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey);
-const PAGES={exam:()=>setExam(),chain:()=>setChain(),mix:()=>setMix(),print:()=>setPrint(),about:()=>setAbout()};
+const PAGES={exam:()=>setExam(),chain:()=>setChain(),final:()=>setFinal(),mix:()=>setMix(),print:()=>setPrint(),about:()=>setAbout()};
 document.addEventListener('click',e=>{const a=e.target.closest('[data-hdr]');if(!a||!plainClick(e))return;e.preventDefault();go(a.dataset.hdr)});
 function go(id){
   if(page==='exam'&&EX&&id!=='exam'){ // мини-мидтерм идёт — спрашиваем, прежде чем уйти
     modal('<h3>Мини-мидтерм ещё идёт</h3><p>Таймер не остановится, ответы сохранятся. Вернуться к работе можно через «Мини-мидтерм» в меню.</p>',
+      [['Остаться','',c=>c()],['Перейти','primary',c=>{c();leaveSpecial();go(id)}]]); return }
+  if(page==='final'&&FX&&id!=='final'){ // тренировочный экзамен идёт
+    modal('<h3>Экзамен ещё идёт</h3><p>Таймер не остановится, ответы сохранятся. Вернуться к работе можно через «Экзамен» в меню.</p>',
       [['Остаться','',c=>c()],['Перейти','primary',c=>{c();leaveSpecial();go(id)}]]); return }
   if(id==='home'){ if(location.hash) history.pushState(null,'',location.pathname+location.search); setHome() }
   else { if(location.hash!=='#'+id) history.pushState(null,'','#'+id); PAGES[id]?PAGES[id]():setTopic(id) } }
@@ -1376,6 +1379,7 @@ function setHome(){
   <p class="aboutline">Впервые здесь? <a class="fbpill" href="#about" data-go="about">Как пользоваться тренажёром →</a></p>
   <section style="display:grid;gap:10px"><h3 class="sec">Практика</h3><div class="tgrid">
       <a class="tcard mid" href="#exam" data-go="exam"><span class="wk">50 минут · без подсказок</span><b>Мини-мидтерм</b><span class="n">Части A и B · кейс Вашего департамента · анализ и разбор</span></a>
+      <a class="tcard mid" href="#final" data-go="final"><span class="wk">70 минут · 80 баллов</span><b>Тренировочный экзамен</b><span class="n">8 задач итогового экзамена · баллы 5 + 5 · новые числа каждый раз</span></a>
       <a class="tcard" href="#chain" data-go="chain"><span class="wk">9 этапов · свой департамент</span><b>Сквозная задача</b><span class="n">Один заказ от замера до рассрочки · план с линейкой · новые числа каждый раз</span></a>
       <a class="tcard" href="#mix" data-go="mix"><span class="wk">5 задач · разные недели</span><b>Смешанная практика</b><span class="n">По одной задаче из пяти разных недель · подсказки · разбор</span></a>
       <a class="tcard" href="#print" data-go="print"><span class="wk">A4 · PDF</span><b>Печать</b><span class="n">Шпаргалка со всеми формулами · бумажный вариант мини-мидтерма с ключом</span></a></div>
@@ -1604,7 +1608,7 @@ const DCOL={ID:'#1A5A4E',GD:'#2D4FE2',FD:'#A00059',VMA:'#F2A90E',VMF:'#F2A90E',I
 const deptBtn=(d,sel)=>`<button type="button" class="dbtn${sel?' sel':''}" data-d="${d}" style="--dc:${DCOL[d]}" title="${DNAME[d]}" aria-label="${DNAME[d]}">${dIcon(d)}<span>${d}</span></button>`;
 const TOPIC_OF={A1:'std',A2:'prog',A3:'pow',A4:'err',A5:'sim',A6:'func',B1:'scale',B2:'err',B3:'err',B4:'sim',B5:'scale'};
 let EX=null, examTick=null; // EX — текущая попытка; она же лежит в localStorage до проверки
-function leaveSpecial(){ if(examTick){clearInterval(examTick);examTick=null} EX=null; document.body.classList.remove('exam-on','print-page') }
+function leaveSpecial(){ if(examTick){clearInterval(examTick);examTick=null} if(fxTick){clearInterval(fxTick);fxTick=null} EX=null; FX=null; document.body.classList.remove('exam-on','print-page') }
 const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 /* ---------- О тренажёре: что это, как работает, как вписывать ответ, режимы, авторы ---------- */
 function setAbout(){ leaveSpecial(); page='about'; cur=null; navRender(); document.title='О тренажёре — '+SITE; window.scrollTo(0,0);
@@ -1627,6 +1631,8 @@ function setAbout(){ leaveSpecial(); page='about'; cur=null; navRender(); docume
   <div class="agrid">
     <a class="tcard mid" href="#exam" data-go="exam"><span class="wk">50 минут · без подсказок</span><b>Мини-мидтерм</b>
       <span class="n">11 задач, как на мидтерме: A1–A6 и кейс B1–B5 Вашего департамента. Таймер всё время виден вверху страницы; когда время выйдет — тихий сигнал и ещё минута на ответы, потом работа проверится сама. Закончить можно и раньше. После проверки — результат, разбор ошибок и решения. Если случайно обновить страницу, ответы и таймер сохранятся.</span></a>
+    <a class="tcard mid" href="#final" data-go="final"><span class="wk">70 минут · 80 баллов</span><b>Тренировочный экзамен</b>
+      <span class="n">8 задач, как на итоговом экзамене, сюжет — заказ для Вашего департамента. В каждой задаче два шага по 5 баллов. Если первый шаг неверный, а второй верный по Вашему числу, второй засчитывается. За некоторые типичные ошибки — часть баллов. После проверки — баллы по задачам, разбор ошибок и решения. Числа каждый раз новые.</span></a>
     <a class="tcard" href="#chain" data-go="chain"><span class="wk">9 этапов · свой департамент</span><b>Сквозная задача</b>
       <span class="n">Один заказ Вашего департамента: замер по плану с линейкой, подобие, пропорция, пиксели, цены, прогноз, тираж, смета и рассрочка. Ответ этапа нужен на следующем. На каждом этапе есть подсказки и решение; после решения идёте дальше с верным числом. Прогресс сохраняется в браузере, числа каждый раз новые.</span></a>
     <a class="tcard" href="#mix" data-go="mix"><span class="wk">5 задач · разные недели</span><b>Микс</b>
@@ -1712,7 +1718,7 @@ function finishExam(){ const st=EX; if(!st)return; leaveSpecial(); store(EXAM_KE
     <h3 class="sec">Разбор задач</h3><div class="xlist">${reviewHTML(st.tasks)}</div>
     <div class="actions"><button class="btn primary" id="xagain">Пройти ещё раз</button><a class="btn" href="#" data-go="home">На главную</a></div>`;
   bindGo($('#main')); $('#xagain').onclick=()=>{setExam();examStartModal()}; window.scrollTo(0,0) }
-window.addEventListener('beforeunload',e=>{if(page==='exam'&&EX){e.preventDefault();e.returnValue=''}});
+window.addEventListener('beforeunload',e=>{if(page==='exam'&&EX||page==='final'&&FX){e.preventDefault();e.returnValue=''}});
 
 /* ---------- смешанная практика: 5 задач из 5 разных недель ---------- */
 const MIX_N=5; let MX=null;
@@ -2180,6 +2186,178 @@ function chainFinal(){ const c=CH.c, self=CH.st.filter(x=>x.s==='ok').length, al
     <div class="actions"><button class="btn primary" id="chagain">Новая цепочка</button><a class="btn" href="#" data-go="home">На главную</a></div>`;
   bindGo($('#chstage')); $('#chagain').onclick=()=>chainStart(CH.dept) }
 
+/* ---------- тренировочный экзамен: 8 задач × (5 + 5), перенос ошибки, частичные баллы, 70 минут ---------- */
+const FX_KEY='trainer-final', FX_MIN=70; let FX=null, fxTick=null;
+/* слова департаментов: сюжеты свои, не из вариантов Альфа/Бета */
+const EXW={
+ GD:{client:'Книжный магазин «Переплёт»',who:'графический дизайнер студии',what:'рекламу недели кино: от логотипа и витрины до сметы',
+  t1:['Логотип для печати','Магазин прислал логотип шириной'],t2:['Плёнка на витрину','витрины','Плёнку клеят вертикальными полосами на всю высоту витрины'],
+  t3:['Постер в витрину','постера','Для витрины постер печатают шириной'],t4:'рекламы',t5:['Плоттер в кредит','плоттер'],
+  t6:['Выбор типографии','печать одного постера 50 × 70 см в семи типографиях','Типография'],
+  t7:['Случайный постер','Дизайнер выбирает фон','фона',['чёрный','белый','фисташковый','серый','синий','красный'],'шрифт','шрифта',['Roboto','Rubik','Inter','Montserrat','Oswald']],
+  t8:['Рост подписчиков','сколько подписчиков было у магазина в Instagram на конец каждого месяца','подписчиков']},
+ VMF:{client:'Сеть кафе «Кадр»',who:'видеограф студии',what:'вечер студенческого кино: от афиши и экрана до сметы',
+  t1:['Кадр для афиши','Для афиши взяли кадр из фильма шириной'],t2:['Полотно для экрана','стены зала','Экранную ткань вешают вертикальными полосами на всю высоту стены'],
+  t3:['Афиша фильма','афиши','Для входа в кафе афишу печатают шириной'],t4:'съёмки ролика',t5:['Камера в кредит','камеру'],
+  t6:['Аренда проектора','аренду проектора на один вечер у семи прокатов','Прокат'],
+  t7:['Случайный трейлер','Монтажёр выбирает музыку','трека',['трек 1','трек 2','трек 3','трек 4','трек 5','трек 6'],'шрифт титров','шрифта',['Roboto','Rubik','Inter','Montserrat','Oswald']],
+  t8:['Просмотры трейлера','сколько просмотров набрал трейлер кафе на конец каждого месяца','просмотров']},
+ VMA:{client:'Детский центр «Карусель»',who:'аниматор студии',what:'персонажа для детского центра: от наклейки до сметы',
+  t1:['Кадр персонажа','Персонаж нарисован в кадре шириной'],t2:['Наклейка-полоса','стены игровой','Фон-наклейку клеят вертикальными полосами на всю высоту стены'],
+  t3:['Наклейка с персонажем','наклейки','Для игровой наклейку печатают шириной'],t4:'анимации',t5:['Планшет в кредит','графический планшет'],
+  t6:['Цены на печать','печать 1 м² наклейки в семи типографиях','Типография'],
+  t7:['Случайный персонаж','Аниматор выбирает цвет персонажа','цвета',['красный','синий','жёлтый','зелёный','оранжевый','фиолетовый'],'позу','позы',['прыжок','взмах','бег','поклон','улыбка']],
+  t8:['Просмотры мультфильма','сколько просмотров набрал мультфильм центра на конец каждого месяца','просмотров']},
+ ID:{client:'Хостел «Арча»',who:'дизайнер интерьера студии',what:'обновление лобби: от визуализации и обоев до сметы',
+  t1:['Визуализация для печати','Визуализация лобби — картинка шириной'],t2:['Обои на стену','стены лобби','Обои клеят вертикальными полосами на всю высоту стены'],
+  t3:['Панно в лобби','панно','Для лобби панно печатают шириной'],t4:'проекта интерьера',t5:['Ноутбук в кредит','ноутбук для 3D-визуализаций'],
+  t6:['Выбор обоев','1 м² обоев у семи поставщиков','Поставщик'],
+  t7:['Случайный интерьер','Дизайнер выбирает цвет стен','цвета',['белый','серый','бежевый','оливковый','терракотовый','синий'],'пол','пола',['дуб','бетон','плитка','ясень','орех']],
+  t8:['Бронирования','сколько бронирований было у хостела за каждый месяц','бронирований']},
+ FD:{client:'Ателье «Шёлковый путь»',who:'дизайнер одежды',what:'шторы и принты для нового зала: от принта до сметы',
+  t1:['Принт для ткани','Ателье прислало рисунок принта шириной'],t2:['Шторы на окно','окна','Шторы шьют вертикальными полосами на всю высоту окна'],
+  t3:['Нашивка с логотипом','нашивки','Для фартука продавца нашивку делают шириной'],t4:'пошива штор',t5:['Швейная машина в кредит','швейную машину'],
+  t6:['Выбор ткани','ткань (за 1 м) у семи поставщиков','Поставщик'],
+  t7:['Случайный образ','Дизайнер выбирает ткань','ткани',['лён','хлопок','шёлк','вельвет','шерсть','атлас'],'цвет','цвета',['чёрный','белый','бордовый','оливковый','синий']],
+  t8:['Рост подписчиков','сколько подписчиков было у ателье в Instagram на конец каждого месяца','подписчиков']},
+ ITB:{client:'Стартап «Жол-Бот»',who:'продуктовый дизайнер команды',what:'стенд для ярмарки и лендинг: от иконки до сметы',
+  t1:['Иконка для баннера','Иконка приложения — картинка шириной'],t2:['Баннер стенда','стенда','Баннер собирают из вертикальных полос на всю высоту стенда'],
+  t3:['Плакат приложения','плаката','Для стенда плакат печатают шириной'],t4:'лендинга',t5:['Сервер в кредит','сервер'],
+  t6:['Выбор хостинга','месячную подписку на хостинг у семи провайдеров','Провайдер'],
+  t7:['A/B-тест кнопки','Команда выбирает цвет кнопки','цвета',['зелёный','синий','оранжевый','фиолетовый','чёрный','красный'],'текст кнопки','текста',['«Начать»','«Скачать»','«Попробовать»','«Вперёд»','«Хочу!»']],
+  t8:['Скачивания приложения','сколько раз скачали приложение за каждый месяц','скачиваний']}};
+
+function fxTasks(dept){ const w=EXW[dept], T=[];
+  /* 1. единицы и dpi */
+  { let px,dpi; do{dpi=pick([150,200,300]);px=ri(8,40)*100}while(!isInt(px/dpi*100)); const inch=px/dpi, cm=r2(inch*2.54,1);
+    T.push({ty:1,p:{px,dpi},ctol:0.06,title:w.t1[0],topic:'единицы и dpi',
+     q:`${w.t1[1]} ${F(px,0)} пикселей. Для печати нужно разрешение ${dpi} dpi (${dpi} пикселей на дюйм). 1 дюйм = 2,54 см. Какой наибольшей ширины можно напечатать картинку? Найдите ширину в дюймах, потом в сантиметрах (до десятых).`,
+     fields:[num('ширина в дюймах',inch,{show:F(inch,2),tol:0.005,traps:[[px*dpi,'Пиксели делим на dpi, а не умножаем.'],[px/2.54,'Сначала пиксели : dpi — получатся дюймы.']]}),
+       num('ширина в сантиметрах',cm,{show:F(cm,1),tol:0.051,traps:[[px*2.54,'Пиксели × 2,54 без деления на dpi: сначала пиксели : dpi = дюймы.'],[inch/2.54,'Дюймы в сантиметры — умножаем на 2,54.']]})],
+     sol:[`${F(px,0)} : ${dpi} = ${F(inch,2)} дюйма`,`${F(inch,2)} × 2,54 ≈ ${F(cm,1)} см`]}) }
+  /* 2. масштаб и запас */
+  { const s=pick([20,25,50]), pl=ri(s===50?30:s===25?60:80,s===50?55:s===25?100:120)/10, real=r2(pl*s,1), z=pick([5,10,15]), len=r2((real+z)/100,3);
+    T.push({ty:2,p:{z},ctol:0.006,title:w.t2[0],topic:'масштаб и запас',
+     q:`На плане в масштабе 1&nbsp;:&nbsp;${s} высота ${w.t2[1]} — ${F(pl,1)} см. ${w.t2[2]}, к каждой полосе добавляют технологический запас ${z} см. Найдите реальную высоту в сантиметрах. Какой длины нужна одна полоса? Ответ дайте в метрах.`,
+     fields:[num('реальная высота, см',real,{show:F(real,1),traps:[[pl/s,'Масштаб 1 : '+s+' — реальный размер в '+s+' раз больше: умножаем, а не делим.']]}),
+       num('длина полосы, м',len,{show:F(len,3),tol:0.0005,part:[[r2(real*(1+z/100)/100,4),2]],traps:[[real*(1+z/100)/100,`Запас — ${z} сантиметров, а не ${z} %: прибавляем ${z} см.`],[real+z,'Это сантиметры. В метры — : 100.'],[real/100,'Не забудьте технологический запас.']]})],
+     sol:[`${F(pl,1)} × ${s} = ${F(real,1)} см`,`${F(real,1)} + ${z} = ${F(real+z,1)} см = ${F(len,3)} м`]}) }
+  /* 3. подобие k² */
+  { let sw,sh,k; do{sw=ri(8,30);sh=ri(10,40);k=pick([2,2.5,3,4,5,6])}while(sw===sh||!isInt(sw*k)||sw*k>200); const W=sw*k, tp=pick([100,120,150,200]), price=r2(tp*k*k,2);
+    T.push({ty:3,p:{tp},ctol:1,title:w.t3[0],topic:'подобие, k²',
+     q:`Эскиз ${w.t3[1]} — ${sw} см × ${sh} см, его пробная печать стоит ${tp} сом. ${w.t3[2]} ${F(W,0)} см с теми же пропорциями. Цена печати пропорциональна площади. Найдите k. Сколько стоит печать?`,
+     fields:[num('k',k,{show:F(k,2),traps:[[sw/W,'k = новый размер : эскиз, а не наоборот.'],[W-sw,'k — во сколько раз больше, а не на сколько.']]}),
+       num('цена, сом',price,{show:F(price,0),tol:0.5,part:[[tp*k,0]],traps:[[tp*k,'Цена × k вместо k²: площадь растёт в k² раз.'],[tp*2*k,'Не 2k, а k² = k · k.']]})],
+     sol:[`k = ${F(W,0)} : ${sw} = ${F(k,2)}`,`${tp} × ${F(k,2)}² = ${tp} × ${F(k*k,2)} = ${F(price,0)} сом`]}) }
+  /* 4. наценка и скидка */
+  { const cost=ri(10,48)*1000, m=pick([20,25,30,40,50]), d=pick([5,10,15,20]), after=cost*(1+m/100), pay=r2(after*(1-d/100),2);
+    if(m===d) return fxTasks(dept);
+    T.push({ty:4,p:{d},ctol:1,title:'Цена для заказчика',topic:'наценка и скидка',
+     q:`Себестоимость ${w.t4} — ${F(cost,0)} сом. Студия делает наценку ${m} %, а потом соглашается дать заказчику скидку ${d} % от этой цены. Найдите цену после наценки. Сколько заплатит заказчик?`,
+     fields:[num('после наценки, сом',after,{show:F(after,0),traps:[[cost*m/100,'Это только наценка. Цена = себестоимость × '+F(1+m/100,2)+'.']]}),
+       num('заплатит, сом',pay,{show:F(pay,2),tol:0.5,part:[[cost*(1+(m-d)/100),3]],traps:[[cost*(1+(m-d)/100),`Проценты сложены одним числом (+${m} − ${d}). Скидка считается от новой цены: × ${F(1-d/100,2)}.`],[after*d/100,'Это только скидка. Заплатит = цена × '+F(1-d/100,2)+'.'],[cost*(1-d/100),'Скидку берут от цены после наценки, а не от себестоимости.']]})],
+     sol:[`${F(cost,0)} × ${F(1+m/100,2)} = ${F(after,0)} сом`,`${F(after,0)} × ${F(1-d/100,2)} = ${F(pay,2)} сом`]}) }
+  /* 5. сложный процент */
+  { const cr=ri(5,25)*10000, r=pick([2,3,4,5]), m=pick([3,4,5,6]), m1=cr*(1+r/100), sum=Math.round(cr*(1+r/100)**m);
+    T.push({ty:5,p:{r,m},ctol:2,title:w.t5[0],topic:'сложный процент',
+     q:`Студия покупает ${w.t5[1]} за ${F(cr,0)} сом в кредит. Каждый месяц долг вырастает на ${r} % от того, что уже накопилось. Через ${pl(m,MON)} долг возвращают одним платежом. Каким будет долг через месяц? Какую сумму вернут через ${pl(m,MON)}? Округлите до целых сом.`,
+     fields:[num('долг через месяц, сом',m1,{show:F(m1,0),tol:0.5,traps:[[cr*r/100,'Это только проценты за месяц. Долг = кредит × '+F(1+r/100,2)+'.']]}),
+       num(`вернут через ${pl(m,MON)}, сом`,sum,{show:F(sum,0),tol:1,part:[[cr*(1+r*m/100),0]],traps:[[cr*(1+r*m/100),`Это простой процент. Каждый месяц процент начисляется на уже выросший долг: × ${F(1+r/100,2)} ${m} ${RAZ(m)}.`],[cr*(1+r/100)*m,'Долг не умножают на число месяцев: его каждый месяц умножают на '+F(1+r/100,2)+'.']]})],
+     sol:[`${F(cr,0)} × ${F(1+r/100,2)} = ${F(m1,0)} сом`,`${F(cr,0)} × ${F(1+r/100,2)}${sup(m)} = ${F(cr,0)} × ${F((1+r/100)**m,6)} ≈ ${F(sum,0)} сом`]}) }
+  /* 6. среднее и медиана */
+  { let v,sum,srt,med; do{const b=ri(25,80)*10; v=[];for(let i=0;i<6;i++)v.push(b+ri(-6,6)*10); v.push(Math.round(b*ri(20,32)/100)*10);
+      for(let i=6;i>0;i--){const j=ri(0,i);[v[i],v[j]]=[v[j],v[i]]} sum=v.reduce((a,c)=>a+c,0);srt=[...v].sort((a,c)=>a-c);med=srt[3]}while(v[3]===med||new Set(v).size<6);
+    const mean=Math.round(sum/7);
+    T.push({ty:6,p:{},ctol:0,title:w.t6[0],topic:'среднее и медиана',
+     q:`Студия собрала цены на ${w.t6[1]} (сом). Найдите среднюю цену и медиану цены. Среднее округлите до целых.`,
+     extra:`<div class="tblwrap" style="min-width:0"><table class="ans"><tr><th>${w.t6[2]}</th>${v.map((x,i)=>`<th>${i+1}</th>`).join('')}</tr><tr><td>Цена, сом</td>${v.map(x=>`<td>${F(x,0)}</td>`).join('')}</tr></table></div>`,
+     fields:[num('среднее, сом',mean,{show:F(mean,0),tol:1,traps:[[sum,'Это сумма. Среднее = сумма : 7.'],[sum/6,'Цен семь — делим на 7.']]}),
+       num('медиана, сом',med,{show:F(med,0),part:[[v[3],0]],traps:[[v[3],'Медиана — середина упорядоченного ряда. Сначала расставьте цены по возрастанию.'],[(srt[2]+srt[3])/2,'Чисел семь — посередине ровно одно, 4-е.']]})],
+     sol:[`${F(sum,0)} : 7 ≈ ${F(sum/7,1)} → ${F(mean,0)} сом`,`ряд: ${srt.map(x=>F(x,0)).join(', ')} → медиана ${F(med,0)} сом`]}) }
+  /* 7. правило произведения и вероятность */
+  { const t=w.t7, n1=ri(3,6), n2=ri(2,5), n=n1*n2, P=r2(100/n,1);
+    T.push({ty:7,p:{},ctol:0.06,title:t[0],topic:'правило произведения, вероятность',
+     q:`${t[1]} из ${n1} вариантов (${t[3].slice(0,n1).join(', ')}) и ${t[4]} из ${n2} вариантов (${t[6].slice(0,n2).join(', ')}). Комбинацию выбирают случайно, все комбинации равновозможны. Сколько всего комбинаций? Какова вероятность, что выпадет одна заранее загаданная комбинация: ${t[3][0]} + ${t[6][0]}? Вероятность — в процентах до десятых (можно дробью).`,
+     fields:[num('комбинаций',n,{show:F(n,0),traps:[[n1+n2,'Варианты сложены, а нужно умножить: каждый вариант первого выбора идёт с каждым вариантом второго.']]}),
+       num('вероятность, %',P,{show:`${F(P,1)} (или 1/${n})`,tol:0.051,alt:[[1/n,0.0006]],traps:[[100/(n1+n2),'Вероятность посчитана по сумме вариантов, а их произведение.'],[n,'Вероятность одной комбинации = 1 : число комбинаций.']]})],
+     sol:[`${n1} × ${n2} = ${n}`,`P = 1/${n} ≈ ${F(100/n,2)} % ≈ ${F(P,1)} %`]}) }
+  /* 8. темп и прогноз */
+  { let y,st; do{st=pick([50,100]);const a=ri(4,30)*st;y=[a];for(let i=0;i<3;i++)y.push(y[i]+ri(0,5)*st)}while(y[3]-y[0]<3*st||y[1]===y[0]+(y[3]-y[0])/3&&y[2]===y[0]+2*(y[3]-y[0])/3);
+    const tr=(y[3]-y[0])/3, trR=r2(tr,1), fc=y[3]+3*tr;
+    T.push({ty:8,p:{last:y[3]},ctol:1.5,title:w.t8[0],topic:'темп и прогноз',
+     q:`График показывает, ${w.t8[1]}. Найдите средний темп роста с июля по октябрь (${w.t8[2]} в месяц, до десятых). Сколько будет в январе, если этот темп сохранится?`,
+     extra:svgLine(y,['июль','август','сентябрь','октябрь'],st,w.t8[2]),
+     fields:[num('темп в месяц',trR,{show:F(trR,1),tol:0.051,traps:[[(y[3]-y[0])/4,'Июль → октябрь — 3 промежутка, а не 4 месяца.'],[y[3]-y[2],'Это рост за последний месяц. Средний темп — за весь отрезок: (октябрь − июль) : 3.']]}),
+       num('прогноз на январь',Math.round(fc),{show:F(Math.round(fc),0),tol:1.5,traps:[[y[3]+tr,'До января три месяца: ноябрь, декабрь, январь — темп × 3.'],[y[0]+3*tr,'Прогноз считают от последнего значения — октября.']]})],
+     sol:[`(${F(y[3],0)} − ${F(y[0],0)}) : 3 ${isInt(tr)?'=':'≈'} ${F(trR,1)} в месяц`,`${F(y[3],0)} + 3 × ${F(trR,1)} ${isInt(tr)?'=':'≈'} ${F(Math.round(fc),0)}${isInt(tr)?'':' (по округлённому темпу тоже засчитывается)'}`]}) }
+  T.forEach((t,i)=>{t.no=i+1;t.kind=`Задача ${i+1}. ${t.title}`}); return T }
+/* второй шаг по числу креатора из первого шага */
+function fxCarry(t,v){ const p=t.p; switch(t.ty){
+  case 1: return [v*2.54]; case 2: return [(v+p.z)/100]; case 3: return [p.tp*v*v]; case 4: return [v*(1-p.d/100)];
+  case 5: return [v*(1+p.r/100)**(p.m-1)]; case 6: return []; case 7: return v>0?[100/v,1/v]:[]; case 8: return [p.last+3*v] } return [] }
+function fxGrade(t){ const v0=parseAns(t.fields[0].raw);
+  t.res=t.fields.map((f,j)=>{ const raw=String(f.raw??'').trim(); if(!raw) return {ok:null,tip:null,pts:0};
+    const r=evalField(f,raw); if(r.ok) return {ok:true,tip:null,pts:5}; const x=parseAns(raw);
+    if(isFinite(x)){ for(const [a,tl] of (f.alt||[])) if(Math.abs(x-a)<=tl+1e-9) return {ok:true,tip:null,pts:5};
+      if(j===1&&isFinite(v0)&&!evalField(t.fields[0],t.fields[0].raw).ok) for(const c of fxCarry(t,v0)) if(isFinite(c)&&Math.abs(x-c)<=Math.max(t.ctol,Math.abs(c)*0.0005)+1e-9&&!(t.ty===7&&c<1&&Math.abs(x-c)>0.0006)) return {ok:true,tip:'Засчитано по Вашему числу из первого шага: ошибка не тянется дальше.',pts:5,carry:true};
+      const tol=Math.max(0.5*10**-Math.min(decOf(raw),6),1e-6*Math.abs(x));
+      for(const [a,pp] of (f.part||[])) if(Math.abs(x-a)<=tol+1e-9) return {ok:false,tip:r.tip,pts:pp} }
+    return {ok:false,tip:r.tip,pts:0} });
+  t.pts=t.res.reduce((s,r)=>s+r.pts,0); t.ok=t.pts===10; return t.pts }
+
+/* ---- страница ---- */
+function setFinal(){ leaveSpecial(); page='final'; cur=null; navRender(); centerNav(); document.title='Экзамен — '+SITE; window.scrollTo(0,0);
+  const st=load(FX_KEY); if(st&&st.tasks) return renderFinal(st);
+  $('#main').innerHTML=`<section><div class="eyebrow">Подготовка к итоговому экзамену</div><h2 class="tt">Тренировочный экзамен</h2>
+    <p class="lead">8 задач, как на итоговом экзамене: единицы и dpi, масштаб, подобие, наценка и скидка, сложный процент, среднее и медиана, вероятность, темп и прогноз. Сюжет — заказ для Вашего департамента, числа каждый раз новые.</p></section>
+    <section class="panel"><h3>Как это устроено</h3><ul class="err">
+      <li>На работу — <b>70 минут</b>. Таймер всё время виден вверху экрана. Калькулятор можно.</li>
+      <li>В каждой задаче два шага, за каждый — 5 баллов. Всего — <b>80 баллов</b>.</li>
+      <li>Если первый шаг неверный, а второй сделан верно по Вашему числу — второй засчитывается.</li>
+      <li>За некоторые типичные ошибки — часть баллов, и после проверки видно, в чём ошибка.</li>
+      <li>Подсказок по ходу работы нет. Когда время выйдет, прозвучит сигнал и будет ещё минута, потом работа проверится сама.</li>
+      <li>Если случайно обновить страницу, ответы и таймер сохранятся.</li></ul></section>
+    <div><button class="btn primary" id="fxstart">Начать</button></div>`;
+  $('#fxstart').onclick=finalStartModal }
+function finalStartModal(){ let dept=null;
+  const m=modal(`<h3>Тренировочный экзамен</h3><p>На 8 задач у Вас ${FX_MIN} минут. Таймер запустится, как только Вы нажмёте «Приступить».</p>
+    <ul class="xrules"><li>Таймер всё время виден вверху страницы.</li><li>Когда время выйдет, прозвучит тихий сигнал. После него у Вас будет ещё 1 минута.</li><li>Потом работа проверится сама: баллы, разбор ошибок и решения.</li></ul>
+    <p><b>Выберите Ваш департамент:</b></p><div class="depts">${DEPTS.map(d=>deptBtn(d)).join('')}</div>`,
+    [['Отмена','',c=>c()],['Приступить','primary go',c=>{if(!dept)return;c();startFinal(dept)}]],{band:false});
+  const g=m.querySelector('.row .primary'); g.disabled=true;
+  m.querySelector('.depts').onclick=e=>{const b=e.target.closest('button');if(!b)return;dept=b.dataset.d;[...b.parentElement.children].forEach(x=>x.classList.toggle('sel',x===b));g.disabled=false} }
+function startFinal(dept){ unlockAudio(); FX={start:Date.now(),dept,tasks:fxTasks(dept),warned:false}; store(FX_KEY,FX); renderFinal(FX); window.scrollTo(0,0) }
+function renderFinal(st){ FX=st; document.body.classList.add('exam-on'); const w=EXW[st.dept];
+  $('#main').innerHTML=`<section><div class="eyebrow">Тренировочный экзамен · ${st.dept}</div><h2 class="tt">${w.client}</h2>
+      <p class="lead">Вы — ${w.who}. ${w.client} ${/^Ателье/.test(w.client)?'заказало':/^Сеть/.test(w.client)?'заказала':'заказал'} ${w.what}. Восемь задач, в каждой два шага.</p></section>
+    <div class="timer" id="xtimer"><span id="xtlabel">Осталось</span><b id="xtime">${fmt(st.start+FX_MIN*60000-Date.now())}</b></div>
+    <div class="xlist">${st.tasks.map((t,i)=>`<article class="xtask"><div class="xhead"><span class="no-">Задача ${t.no} · ${t.title}</span><span class="fnote" style="margin:0">10 баллов</span></div><p class="q">${t.q}</p>${t.extra||''}<div class="fields">${fieldsHTML(t,'x'+i)}</div></article>`).join('')}</div>
+    <div class="actions"><button class="btn primary" id="xfinish">Закончить работу</button></div>`;
+  bindFields($('#main'),st.tasks,()=>store(FX_KEY,FX));
+  $('#xfinish').onclick=()=>modal(`<div class="talkrow">${buddySVG('smile')}<div class="bubble">Вы хотите, чтобы я проверил Вашу работу?</div></div>`,[['Нет','',c=>c()],['Да','primary',c=>{c();finishFinal()}]]);
+  tickFinal(); fxTick=setInterval(tickFinal,1000) }
+function tickFinal(){ if(!FX||page!=='final')return; const left=FX.start+FX_MIN*60000-Date.now(), el=$('#xtimer'); if(!el)return;
+  if(left>0) $('#xtime').textContent=fmt(left);
+  else if(left>-GRACE_S*1000){ if(!FX.warned){FX.warned=true;store(FX_KEY,FX);chime()} el.classList.add('over'); $('#xtlabel').textContent='Время вышло. Впишите ответы — проверка через'; $('#xtime').textContent=fmt(left+GRACE_S*1000) }
+  else finishFinal() }
+function finishFinal(){ const st=FX; if(!st)return; leaveSpecial(); store(FX_KEY,null); document.querySelectorAll('.modal').forEach(m=>m.remove());
+  const total=st.tasks.reduce((s,t)=>s+fxGrade(t),0);
+  statSend(st.tasks.flatMap(t=>statRows(t,t.res,'экзамен',t.topic,st.dept)));
+  const spent=Math.min(Date.now(),st.start+(FX_MIN*60+GRACE_S)*1000)-st.start, all=total===80;
+  const rows=st.tasks.map(t=>`<tr><td>${t.no}. ${t.title}</td><td>${t.topic}</td><td><b>${t.pts}</b> из 10</td></tr>`).join('');
+  $('#main').innerHTML=`<section class="panel res-top res-band bband"><div class="res-sum"><div class="eyebrow">Тренировочный экзамен · ${st.dept} · результат</div>
+      <div class="big">Баллы: ${total} из 80</div>
+      <div class="big" style="font-size:1.2em">Задач решено полностью: ${st.tasks.filter(t=>t.ok).length} из 8</div>
+      <div class="big" style="font-size:1.2em">Затрачено времени: ${Math.floor(spent/60000)} мин ${Math.floor(spent/1000)%60} с из ${FX_MIN} мин</div></div>
+    <div class="res-me${all?' cheer':''}"><div class="bubble">${all?'Incredible! Fenomenale!':'Keep working! :)'}</div>${buddySVG(all?'cheer':'smile')}</div></section>
+    <div class="tblwrap"><table class="ans"><tr><th>Задача</th><th>Тема</th><th>Баллы</th></tr>${rows}</table></div>
+    <h3 class="sec">Разбор задач</h3><div class="xlist">${st.tasks.map(t=>{const tips=[...new Set(t.res.map(r=>r.tip).filter(Boolean))];
+      return `<article class="xtask"><div class="xhead"><span class="no-">Задача ${t.no} · ${t.title}</span><span class="badge ${t.ok?'ok':'no'}">${t.pts} из 10</span></div><p class="q">${t.q}</p>${t.extra||''}
+        <div class="tblwrap"><table class="ans"><tr><th></th><th>Ваш ответ</th><th>Верный ответ</th><th>Баллы</th></tr>${t.fields.map((f,j)=>`<tr><td>${f.label}</td><td>${ansCell(f)}</td><td>${rightCell(f)}</td><td class="${t.res[j].pts===5?'ok':'no'}">${t.res[j].pts}</td></tr>`).join('')}</table></div>
+        ${tips.length?`<div class="tip">${tips.map(x=>`<p>${x}</p>`).join('')}</div>`:''}<div class="sol"><b>Решение</b>${t.sol.map(s=>`<p>${s}</p>`).join('')}</div></article>`}).join('')}</div>
+    <div class="actions"><button class="btn primary" id="xagain">Новый вариант</button><a class="btn" href="#" data-go="home">На главную</a></div>`;
+  bindGo($('#main')); $('#xagain').onclick=()=>{setFinal();finalStartModal()}; window.scrollTo(0,0) }
+
 const ST_URL='https://docs.google.com/forms/d/e/1FAIpQLSeRrp4cjYhseeaEv5KUEiUipRYRmnV36HP6PoaHPfQiQj_x3Q/formResponse';
 const ST_F={where:'entry.385281952',topic:'entry.1262266889',kind:'entry.1273812642',field:'entry.192321182',ans:'entry.22594992',right:'entry.1670195131',res:'entry.1956257578',trap:'entry.1370026787',dept:'entry.1398640542'};
 const ST_ON=/\.github\.io$/.test(location.hostname);
@@ -2194,7 +2372,7 @@ function statRows(t,res,where,topic,dept){ return t.fields.map((f,j)=>{const r=r
   ans:f.kind==='num'?(String(f.raw??'').trim()||'—'):(f.val||'—'),right:plain(rightCell(f)),res:r.ok===true?'верно':r.ok===false?'неверно':'пусто',trap:plain(r.tip||''),dept:dept||''}})}
 function fbPage(){ // где креатор был, когда писал
   if(page==='topic'&&cur) return `${cur.wk} ${cur.title}${task&&task.kind?' · '+task.kind:''}`;
-  return {home:'Главная',exam:'Мини-мидтерм',chain:'Сквозная задача',mix:'Смешанная практика'}[page]||page }
+  return {home:'Главная',exam:'Мини-мидтерм',chain:'Сквозная задача',final:'Тренировочный экзамен',mix:'Смешанная практика'}[page]||page }
 function fbDevice(){ const ua=navigator.userAgent, coarse=matchMedia('(pointer:coarse)').matches;
   const kind=coarse?(Math.min(screen.width,screen.height)<600?'Телефон':'Планшет'):'Компьютер';
   const os=/iPhone|iPad|iPod/.test(ua)?'iOS':/Android/.test(ua)?'Android':/Mac/.test(ua)?'macOS':/Windows/.test(ua)?'Windows':/Linux/.test(ua)?'Linux':'';
