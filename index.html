@@ -378,7 +378,7 @@ a.lnk{color:var(--ink)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .dbtn:not(.sel) .dicon{color:color-mix(in srgb,var(--dc) 65%,#fff)}}
 .talkrow{display:flex;align-items:flex-end;gap:14px}
 .talkrow svg{width:96px;height:auto;flex:none}
-.bubble{position:relative;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:9px 14px;font-weight:700;line-height:1.3;box-shadow:0 3px 0 var(--ink)}
+.bubble{position:relative;background:var(--surface);color:var(--ink);border:2px solid var(--ink);border-radius:12px;padding:9px 14px;font-weight:700;line-height:1.3;box-shadow:0 3px 0 var(--ink)}
 .bubble::after{content:"";position:absolute;left:-9px;bottom:16px;width:14px;height:14px;background:var(--surface);border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(45deg)}
 .timer{position:sticky;top:var(--navh,56px);z-index:14;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
   background:var(--ink);color:var(--bg);border-radius:12px;padding:8px 14px;font-weight:700}
@@ -386,7 +386,7 @@ a.lnk{color:var(--ink)}
 .timer.over{background:var(--bad);color:#fff}
 .xlist{display:grid;gap:14px}
 .xtask{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:12px;min-width:0}
-.xtask .no-{font-weight:700;color:var(--muted);letter-spacing:.5px}
+.xtask .no-{font-weight:700;color:var(--accent-ink);letter-spacing:.5px}
 .xhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .xhead .no-{font-size:.85em;text-transform:uppercase}
 .xtask .q{font-size:1.05em}
@@ -480,15 +480,16 @@ const pl=(n,f)=>{const a=n%10,b=n%100;return n+' '+(a===1&&b!==11?f[0]:a>=2&&a<=
 const YRS=['год','года','лет'],MON=['месяц','месяца','месяцев'];
 const MN=x=>String(x).replace('-','−');
 const RAZ=k=>{k=r2(k,6);return Number.isInteger(k)?pl(k,['раз','раза','раз']).split(' ')[1]:'раза'};
+const fixDec=s=>String(s??'').replace(/(\d)\s*[юЮбБ]\s*(?=\d)/g,'$1,'); // «2ю65», «2б65» — запятая на русской раскладке
 function parseAns(s){
-  if(s==null)return NaN;s=String(s).trim().replace(/[\s  ]/g,'').replace(/%$/,'').replace(/,/g,'.').replace(/−/g,'-');
+  if(s==null)return NaN;s=fixDec(s).trim().replace(/[\s  ]/g,'').replace(/%$/,'').replace(/,/g,'.').replace(/−/g,'-');
   if(!s)return NaN;
   const m=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);if(m)return parseFloat(m[1])/parseFloat(m[2]);
   return /^-?\d*\.?\d+(e[-+]?\d+)?$/i.test(s)?parseFloat(s):NaN; // 1,79E+07 — запись калькулятора
 }
 const num=(label,ans,o={})=>({kind:'num',label,ans,tol:o.tol??1e-6,unit:o.unit||'',flex:!!o.flex,show:o.show??F(ans,o.flex?2:4),traps:o.traps||[],exact:o.exact,up:!!o.up,frac:!!o.frac,sig:o.sig,stdA:!!o.stdA,whole:!!o.whole,alt:o.alt,part:o.part}); // sig: ровно столько значащих цифр; stdA: поле a стандартного вида; whole: нужно точное целое (пиксели) // frac: ответ нужен долей, знак % не принимаем
-const sigOf=s=>{s=String(s).trim().replace(/[\s  ]/g,'').replace(/,/g,'.').replace(/^[-−+]/,'').split(/e/i)[0];return s.replace('.','').replace(/^0+/,'').length}; // сколько значащих цифр вписано
-const decOf=s=>{s=String(s).replace(/,/g,'.');if(s.includes('/'))return 6;const m=s.match(/\.(\d+)/);return m?m[1].length:0};
+const sigOf=s=>{s=fixDec(s).trim().replace(/[\s  ]/g,'').replace(/,/g,'.').replace(/^[-−+]/,'').split(/e/i)[0];return s.replace('.','').replace(/^0+/,'').length}; // сколько значащих цифр вписано
+const decOf=s=>{s=fixDec(s).replace(/,/g,'.');if(s.includes('/'))return 6;const m=s.match(/\.(\d+)/);return m?m[1].length:0};
 const choice=(label,opts,ans)=>({kind:'choice',label,opts,ans,show:ans});
 function expandNum(d2,n){ // d2 = two digits as integer 10..99, value d2*10^(n-1)
   const digits=String(d2).replace(/0$/,'')||'0';const lead=String(d2);const e=n-1;
@@ -1509,9 +1510,14 @@ function diag(f,inp,v){
 /* проверка одного поля: {ok:true|false|null (пусто), tip} — общая для тренажёра, мини-мидтерма и микса */
 const NOTNUM='Впишите только число — без единиц и букв. Дробь пишите так: 1/64.';
 const FRACPCT='Переведите проценты в долю: ответ нужен десятичной дробью, без знака %.';
-function evalField(f,raw){
+const KB_OK='Засчитано, но внимательнее с раскладкой: «ю» — не точка, «б» — не запятая. Дробную часть отделяйте запятой или точкой.';
+const KB_NO='И внимательнее с раскладкой: «ю» — не точка, «б» — не запятая.';
+function evalField(f,raw){ const r=evalField0(f,raw); // «2ю65» засчитываем, но говорим про раскладку
+  if(f.kind==='num'&&r.ok!==null&&/\d\s*[юЮбБ]\s*\d/.test(String(raw??''))) r.tip=r.ok?KB_OK:(r.tip?r.tip+' '+KB_NO:'Внимательнее с раскладкой: «ю» — не точка, «б» — не запятая.');
+  return r }
+function evalField0(f,raw){
   if(f.kind!=='num') return f.val?{ok:f.val===f.ans,tip:null}:{ok:null,tip:null};
-  raw=String(raw??'').trim(); if(!raw) return {ok:null,tip:null};
+  raw=fixDec(raw).trim(); if(!raw) return {ok:null,tip:null};
   if(f.frac&&raw.includes('%')) return {ok:false,tip:FRACPCT};
   const v=parseAns(raw); if(isNaN(v)) return {ok:false,tip:NOTNUM};
   const ok=f.flex?Math.abs(v-f.ans)<=0.5*10**-Math.min(decOf(raw),6)+1e-9:Math.abs(v-f.ans)<=f.tol+1e-9;
@@ -1868,7 +1874,8 @@ function svgPlan(wmm,hmm,cap,lbl){ const u=4,x0=44,y0=30,rw=22,Lh=Math.ceil((wmm
   return `<div class="tblwrap" style="min-width:0"><svg class="plan" viewBox="0 0 ${VW} ${VH}" style="width:100%;min-width:${VW}px;max-width:${Math.round(VW*1.45)}px" role="img" aria-label="План с линейкой">${g}</svg></div>` }
 
 /* ---- числа ---- */
-function chPlan(sc,wR,hR,cond){ for(let n=0;n<600;n++){const s=pick(sc),wmm=ri(55,100),hmm=ri(30,60),W=wmm*s/1000,H=hmm*s/1000;
+function chPlan(sc,wR,hR,cond){ for(let n=0;n<600;n++){const s=pick([40,50,60,75,100]),wmm=10*ri(3,10),hmm=10*ri(2,6), // на плане целые сантиметры, масштаб разный
+   W=wmm*s/1000,H=hmm*s/1000;
   if(!isInt(W*100)||!isInt(H*100)||W<wR[0]||W>wR[1]||H<hR[0]||H>hR[1])continue;
   const P={s,wmm,hmm,W:r2(W,2),H:r2(H,2),Wc:Math.round(W*100),Hc:Math.round(H*100),err:r2(ceil1(0.0005*s),4)};
   if(cond&&!cond(P))continue; return P} RETRY() }
@@ -1893,9 +1900,9 @@ function stMeasure(P,o){ const {s,wmm,hmm,W,H,err}=P, ecm=r2(0.05*s,2), e0=r2(0.
       num('погрешность',err,{unit:'м',show:fm(err),traps:errTraps})],
     hints:[`Масштаб 1 : ${s}: 1 см на плане — это ${s} см в реальности. Умножьте замер на ${s} и переведите сантиметры в метры (: 100).`,
       `Погрешность линейки — 0,5 мм = 0,05 см. В реальности она тоже в ${s} раз больше: 0,05 × ${s} = ${F(ecm,2)} см.`,
-      `Округляем погрешность вверх до одной значащей цифры: ${F(ecm,2)} см → ${F(err*100,0)} см = ${fm(err)} м.`],
+      Math.abs(ecm-err*100)<1e-9?`Здесь округлять не нужно: в ${F(ecm,2)} см уже одна значащая цифра. В метрах — ${fm(err)} м.`:`Округляем погрешность вверх до одной значащей цифры: ${F(ecm,2)} см → ${F(err*100,0)} см = ${fm(err)} м.`],
     sol:[`на плане: ${fd1(wmm/10)} × ${fd1(hmm/10)} см, погрешность ±0,05 см`,`ширина: ${fd1(wmm/10)} × ${s} = ${P.Wc} см = ${fm(W)} м`,`высота: ${fd1(hmm/10)} × ${s} = ${P.Hc} см = ${fm(H)} м`,
-      `погрешность: 0,05 × ${s} = ${F(ecm,2)} см → ${F(err*100,0)} см = ${fm(err)} м`,`итог: ${fm(W)} ± ${fm(err)} м × ${fm(H)} ± ${fm(err)} м`]} }
+      Math.abs(ecm-err*100)<1e-9?`погрешность: 0,05 × ${s} = ${F(ecm,2)} см = ${fm(err)} м`:`погрешность: 0,05 × ${s} = ${F(ecm,2)} см → ${F(err*100,0)} см = ${fm(err)} м`,`итог: ${fm(W)} ± ${fm(err)} м × ${fm(H)} ± ${fm(err)} м`]} }
 function stSim(P,v,o){ const {sw,sh,k,k2,wc,A}=v;
   return {title:o.title,topic:'подобие, k²',short:`${fm(wc/100)} × ${fm(P.H)} м · ${F(A,4)} м²`,
     q:`Эскиз ${o.G} — ${sw} см × ${sh} см (ширина × высота). ${o.lead} Найдите k и ширину ${o.G}. Во сколько раз площадь ${o.G} больше площади эскиза? Найдите площадь ${o.G} в м².`,
@@ -2297,7 +2304,7 @@ function fxCarry(t,v){ const p=t.p; switch(t.ty){
   case 5: return [v*(1+p.r/100)**(p.m-1)]; case 6: return []; case 7: return v>0?[100/v,1/v]:[]; case 8: return [p.last+3*v] } return [] }
 function fxGrade(t){ const v0=parseAns(t.fields[0].raw);
   t.res=t.fields.map((f,j)=>{ const raw=String(f.raw??'').trim(); if(!raw) return {ok:null,tip:null,pts:0};
-    const r=evalField(f,raw); if(r.ok) return {ok:true,tip:null,pts:5}; const x=parseAns(raw);
+    const r=evalField(f,raw); if(r.ok) return {ok:true,tip:r.tip,pts:5}; const x=parseAns(raw);
     if(isFinite(x)){ for(const [a,tl] of (f.alt||[])) if(Math.abs(x-a)<=tl+1e-9) return {ok:true,tip:null,pts:5};
       if(j===1&&isFinite(v0)&&!evalField(t.fields[0],t.fields[0].raw).ok) for(const c of fxCarry(t,v0)) if(isFinite(c)&&Math.abs(x-c)<=Math.max(t.ctol,Math.abs(c)*0.0005)+1e-9&&!(t.ty===7&&c<1&&Math.abs(x-c)>0.0006)) return {ok:true,tip:'Засчитано по Вашему числу из первого шага: ошибка не тянется дальше.',pts:5,carry:true};
       const tol=Math.max(0.5*10**-Math.min(decOf(raw),6),1e-6*Math.abs(x));
